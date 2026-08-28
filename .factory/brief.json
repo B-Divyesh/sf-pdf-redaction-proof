@@ -1,0 +1,11 @@
+{
+  "slug": "pdf-redaction-proof",
+  "title": "Redaction Proof",
+  "territory": "utilities",
+  "user": "People sending converted or redacted PDFs who need evidence that hidden text, metadata, and removable overlays are not still present.",
+  "smallest_useful_product": "A local drop-zone that inspects a PDF, flags recoverable text/objects/metadata behind requested redactions, creates a sanitized copy, and emits a machine-readable verification report.",
+  "success_measure": "At least 95% of seeded hidden-text and metadata cases are detected in a regression corpus, with no original file uploaded.",
+  "artifact_class": "desktop-app",
+  "monetization": "one-time",
+  "constraints": "No legal guarantee; retain nothing by default; parse PDFs locally; preserve an audit hash rather than document contents."
+}

@@ -1,0 +1,8 @@
+{
+  "generator": "Azure AI Foundry factory image deployment via /opt/fleet/lib/gen-image.sh",
+  "date": "2026-08-28",
+  "size": "1536x1024",
+  "quality": "high",
+  "prompt": "Use case: stylized-concept. Asset type: wide landing-page hero illustration. An abstract exploded stack of ivory paper sheets and translucent technical layers suspended in a deep warm-black field. One matte black redaction rectangle crosses the upper paper plane; inside a large circular forensic aperture, a hidden cyan geometric grid is visibly exposed below it, while outside the aperture the sheet appears sealed. High-end editorial 3D papercraft, strict generative geometry, subtle grain, no photoreal people. Wide 3:2 composition, object concentrated center-right with calm negative space left, slight isometric lens. Raking warm studio light, precise shadows. Palette of warm paper, toner black, vermilion edge marks, proof cyan. Materials: uncoated paper, frosted acrylic, matte ink. No text, no letters, no watermark, no logos, no interface, no brands, no gradients, no neon glow.",
+  "review": "Approved: no people, brands, readable text, watermark, UI, or misleading capability claim. Abstract micro-marks are geometric only."
+}
