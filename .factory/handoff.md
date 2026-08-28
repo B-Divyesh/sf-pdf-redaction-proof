@@ -31,7 +31,7 @@
 - `npm run check`: TypeScript and Rust checks pass.
 - `npm run build`: reproducibly emits `dist/app` and `dist/site`; the deploy
   command is `npm run build:site` and `dist/site/index.html` is present.
-- Bundle sizes: app JS 26.46 KB / CSS 10.73 KB; site JS 2.38 KB / CSS 8.87 KB;
+- Bundle sizes: app JS 26.98 KB / CSS 10.73 KB; site JS 2.69 KB / CSS 8.87 KB;
   responsive hero WebP 16.9 KB mobile and 44.1 KB desktop.
 - Lighthouse mobile, local production preview: Performance 100,
   Accessibility 100, Best Practices 100, SEO 100; LCP 1.2 s, CLS 0,
