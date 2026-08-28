@@ -23,11 +23,11 @@
       </section>
 
       <section class="workbench" aria-label="PDF audit workbench">
-        <div id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-describedby="drop-help">
+        <div id="drop-zone" class="drop-zone" role="group" aria-labelledby="drop-label" aria-describedby="drop-help">
           <div class="aperture-icon" aria-hidden="true"><span></span></div>
           <div>
             <h2 id="drop-label">Choose a PDF to inspect</h2>
-            <p id="drop-help">Drop a file here, or press Enter to browse. Maximum 500 MB.</p>
+            <p id="drop-help">Drop a file here, or use Choose PDF. Maximum 500 MB.</p>
           </div>
           <button id="pick-file" class="button primary" type="button">Choose PDF</button>
         </div>
@@ -55,7 +55,7 @@
           <p>Single-file inspection, sanitizing, and JSON proof stay free. Redaction Proof Pro adds multi-file selection for a one-time US$12 purchase.</p>
         </div>
         <div class="license-actions">
-          <a class="button secondary" href="https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout" target="_blank" rel="noreferrer">Buy Pro — $12 once</a>
+          <a id="buy-pro" class="button secondary" href="https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout" target="_blank" rel="noreferrer">Buy Pro — $12 once</a>
           <button id="restore-toggle" class="text-button" type="button" aria-expanded="false">Have a license?</button>
           <form id="license-form" class="license-form" hidden>
             <label for="license-token">License token</label>

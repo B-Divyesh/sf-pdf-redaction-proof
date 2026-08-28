@@ -1,14 +1,89 @@
 # Redaction Proof
 
-Live: https://pdf-redaction-proof.sociobot.in — built by the Param Factory (`desktop-app`).
+Redaction Proof is a local-first desktop utility for people who need to verify
+a redacted or converted PDF before sharing it. It detects recoverable text
+behind common cover rectangles and redaction annotations, invisible text,
+metadata, annotations, forms, layers, embedded files, and automatic actions.
+It can write a separate sanitized PDF and a portable JSON report tied to both
+files by SHA-256.
 
-See `.factory/brief.json` for the researched problem this solves and `.factory/design.md` for the visual system.
+The app does not upload PDFs, execute PDF JavaScript, or claim legal certainty.
+Its stated limitations remain attached to every report.
 
-## Develop
+## Product editions
 
+Single-file inspection, sanitizing, and JSON export are free. A US$12 one-time
+Pro license unlocks multi-file selection and a batch result summary. Checkout
+and license verification use the Sociobot billing API; no payment provider is
+embedded in the app.
+
+## Development
+
+Prerequisites: Node.js 22+, Rust stable, and the [Tauri 2 system
+dependencies](https://v2.tauri.app/start/prerequisites/) for your OS.
+
+```sh
+npm ci
+npm run dev          # browser preview of the desktop UI
+npm run dev:site     # landing site
+npm run tauri dev    # native desktop app
 ```
-npm install
-npm run dev
-npm test
-npm run build   # -> dist/
+
+On Linux, Tauri needs WebKitGTK 4.1 and related headers. Ubuntu CI installs
+`libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf`.
+
+## Test and build
+
+```sh
+npm test             # Vitest + Rust corpus + Playwright/axe, desktop and 390px
+npm run check        # TypeScript and Rust checks
+npm run build        # app -> dist/app; deployable site -> dist/site
+npm run build:site   # exact static deploy command -> dist/site
 ```
+
+Playwright is pinned to 1.58.2. If its browser is not already available, run
+`npx playwright install chromium`.
+
+The release workflow runs on tags matching `v*`. It uses Tauri’s GitHub action
+to build an unsigned universal macOS DMG, Windows MSI/EXE, and Linux
+AppImage/DEB, then publishes `SHA256SUMS` and `latest.json`.
+
+## Install
+
+The website at <https://pdf-redaction-proof.sociobot.in> detects the operating
+system and selects the latest release asset.
+
+```sh
+curl -fsSL https://pdf-redaction-proof.sociobot.in/install.sh | sh
+```
+
+On Windows PowerShell:
+
+```powershell
+irm https://pdf-redaction-proof.sociobot.in/install.ps1 | iex
+```
+
+Both scripts fetch `SHA256SUMS` from the GitHub Release and verify the selected
+asset before installing or opening it. v1 binaries are unsigned; macOS users
+must right-click the app and choose **Open**, and Windows may show SmartScreen.
+
+## How the audit works
+
+The Rust core parses PDF object structures in a separate worker process without
+executing embedded content. It enforces a 500 MB input limit; Unix builds also
+cap the worker at 60 CPU seconds and 1.5 GB address space. Standard
+text operators are spatially compared with later filled rectangles and PDF
+redaction annotations. Sanitizing removes identified overlapping/invisible text
+operators and strips metadata, name trees, actions, annotations, forms, and
+optional-content configuration from a new copy, then immediately re-audits it.
+
+The current geometry analysis is strongest for axis-aligned standard text and
+rectangles. Unusual transforms, clipping paths, Form XObjects, and secrets
+baked into images require visual review. This limitation is intentionally
+visible in the app and report.
+
+## Privacy and source
+
+There is no telemetry, third-party runtime script, CDN font, or PDF upload.
+Only a Pro license token and dated verification verdict are stored locally.
+See `/privacy/` and `/terms/` on the site. The source is MIT licensed.

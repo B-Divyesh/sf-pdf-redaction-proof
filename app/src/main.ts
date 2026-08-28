@@ -2,6 +2,7 @@ import "./style.css";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import type { AuditReport, Finding } from "./types";
 import { cachedUnlock, captureReturnedLicense, storedToken, verifyLicense } from "./license";
 import { reportJson, safeBasename, verdictCopy } from "./report";
@@ -67,6 +68,15 @@ function renderReport(report: AuditReport) {
   result.querySelector<HTMLElement>("h2")?.focus?.();
 }
 
+function renderBatch(reports: AuditReport[]) {
+  renderReport(reports[reports.length - 1]);
+  const summary = document.createElement("section");
+  summary.className = "batch-summary";
+  summary.setAttribute("aria-labelledby", "batch-title");
+  summary.innerHTML = `<p class="eyebrow">BATCH COMPLETE</p><h2 id="batch-title">${reports.length} PDFs audited</h2><ul>${reports.map(report => `<li><span class="batch-verdict ${report.verdict}">${escape(report.verdict.toUpperCase())}</span><strong>${escape(report.source_name)}</strong><span>${report.findings.length} finding types</span></li>`).join("")}</ul><p>The detailed result below is for the last file. Re-open any file individually to sanitize or export its proof.</p>`;
+  result.prepend(summary);
+}
+
 async function audit(path: string) {
   setBusy(true, path.split(/[\\/]/).pop());
   try {
@@ -82,12 +92,12 @@ async function chooseFiles() {
     if (!selection) return;
     const paths = Array.isArray(selection) ? selection : [selection];
     if (paths.length > 1) {
-      let last: AuditReport | null = null;
+      const reports: AuditReport[] = [];
       for (let i = 0; i < paths.length; i++) {
         setBusy(true, `${i + 1}/${paths.length} · ${paths[i].split(/[\\/]/).pop()}`);
-        last = await invoke<AuditReport>("inspect_pdf", { path: paths[i] });
+        reports.push(await invoke<AuditReport>("inspect_pdf", { path: paths[i] }));
       }
-      if (last) renderReport(last);
+      if (reports.length) renderBatch(reports);
     } else await audit(paths[0]);
   } catch (error) { showError(`Could not open that PDF. ${String(error)}`); }
 }
@@ -143,21 +153,24 @@ async function initLicense() {
 
 function init() {
   el("pick-file").addEventListener("click", event => { event.stopPropagation(); chooseFiles(); });
-  dropZone.addEventListener("click", chooseFiles);
-  dropZone.addEventListener("keydown", event => {
-    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); chooseFiles(); }
+  const buyLink = el<HTMLAnchorElement>("buy-pro");
+  buyLink.addEventListener("click", event => {
+    if ("__TAURI_INTERNALS__" in window) { event.preventDefault(); openUrl(buyLink.href); }
   });
-  getCurrentWebview().onDragDropEvent(event => {
-    if (event.payload.type === "over") dropZone.classList.add("dragging");
-    if (event.payload.type === "leave") dropZone.classList.remove("dragging");
-    if (event.payload.type === "drop") {
-      dropZone.classList.remove("dragging");
-      const paths = event.payload.paths.filter(p => p.toLowerCase().endsWith(".pdf"));
-      if (!paths.length) showError("That item is not a PDF. Choose a file ending in .pdf.");
-      else if (paths.length > 1 && !proUnlocked) showError("Free edition inspects one PDF at a time. Choose a single file, or unlock batch auditing.");
-      else audit(paths[0]);
-    }
-  }).catch(() => { /* browser preview */ });
+  dropZone.addEventListener("click", chooseFiles);
+  if ("__TAURI_INTERNALS__" in window) {
+    getCurrentWebview().onDragDropEvent(event => {
+      if (event.payload.type === "over") dropZone.classList.add("dragging");
+      if (event.payload.type === "leave") dropZone.classList.remove("dragging");
+      if (event.payload.type === "drop") {
+        dropZone.classList.remove("dragging");
+        const paths = event.payload.paths.filter(p => p.toLowerCase().endsWith(".pdf"));
+        if (!paths.length) showError("That item is not a PDF. Choose a file ending in .pdf.");
+        else if (paths.length > 1 && !proUnlocked) showError("Free edition inspects one PDF at a time. Choose a single file, or unlock batch auditing.");
+        else audit(paths[0]);
+      }
+    }).catch(() => { /* native drag events are optional */ });
+  }
   const syncOnline = () => { el("offline-note").hidden = navigator.onLine; };
   addEventListener("online", syncOnline); addEventListener("offline", syncOnline); syncOnline();
   initLicense();

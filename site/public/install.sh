@@ -8,8 +8,8 @@ TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT INT TERM
 
 case "$OS:$ARCH" in
-  Darwin:arm64) PATTERN='aarch64.dmg' ;;
-  Darwin:x86_64) PATTERN='x64.dmg' ;;
+  Darwin:arm64) PATTERN='universal.dmg' ;;
+  Darwin:x86_64) PATTERN='universal.dmg' ;;
   Linux:x86_64) PATTERN='amd64.AppImage' ;;
   Linux:aarch64) PATTERN='aarch64.AppImage' ;;
   *) echo "Unsupported platform: $OS $ARCH" >&2; exit 1 ;;

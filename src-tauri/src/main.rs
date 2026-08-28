@@ -1,1 +1,3 @@
-fn main() { redaction_proof_lib::run(); }
+fn main() {
+    redaction_proof_lib::run();
+}

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f4f1e8" />
     <meta name="description" content="Inspect and sanitize redacted PDFs locally. Find hidden text, metadata, annotations, attachments, and actions before sharing." />
+    <link rel="canonical" href="https://pdf-redaction-proof.sociobot.in/" />
+    <meta property="og:title" content="Redaction Proof — Verify a PDF before you share it" />
+    <meta property="og:description" content="Local PDF redaction inspection, sanitizing, and machine-readable proof." />
+    <meta property="og:image" content="https://pdf-redaction-proof.sociobot.in/assets/forensic-aperture.webp" />
     <title>Redaction Proof — Verify a PDF before you share it</title>
   </head>
   <body>
@@ -14,6 +18,10 @@
       <nav aria-label="Main navigation"><a href="#checks">What it checks</a><a href="#pricing">Pricing</a><a href="https://github.com/B-Divyesh/sf-pdf-redaction-proof" target="_blank" rel="noreferrer">Source</a></nav>
     </header>
     <main id="main">
+      <section id="purchase-return" class="purchase-return" aria-labelledby="purchase-title" hidden>
+        <div><p class="eyebrow">PURCHASE COMPLETE</p><h2 id="purchase-title">Your Pro license is ready.</h2><p>Copy this token, open Redaction Proof, then choose “Have a license?” The token is also saved in this browser.</p></div>
+        <div><label for="returned-license">License token</label><input id="returned-license" readonly><button id="copy-license" class="button secondary" type="button">Copy license</button><p id="copy-status" aria-live="polite"></p></div>
+      </section>
       <section class="hero">
         <div class="hero-copy">
           <p class="eyebrow">LOCAL PDF FORENSICS</p>
