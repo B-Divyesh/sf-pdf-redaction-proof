@@ -6,6 +6,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import type { AuditReport, Finding } from "./types";
 import { cachedUnlock, captureReturnedLicense, storedToken, verifyLicense } from "./license";
 import { reportJson, safeBasename, verdictCopy } from "./report";
+import { sampleAudit } from "./sample";
 
 const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const dropZone = el<HTMLDivElement>("drop-zone");
@@ -37,7 +38,7 @@ function findingMarkup(finding: Finding): string {
   return `<li class="finding ${finding.severity}"><span class="finding-icon" aria-hidden="true">${icon}</span><div><strong>${escape(finding.title)}</strong><p>${escape(finding.detail)}</p></div><span class="finding-count">${finding.count}${finding.page ? ` · p${finding.page}` : ""}</span></li>`;
 }
 
-function renderReport(report: AuditReport) {
+function renderReport(report: AuditReport, sample = false) {
   current = report;
   const copy = verdictCopy(report);
   const findings = report.findings.length ? report.findings.map(findingMarkup).join("") : `<li class="finding info"><span class="finding-icon" aria-hidden="true">✓</span><div><strong>Checked structures are clear</strong><p>No risky text overlays, metadata, actions, attachments, or annotations were detected.</p></div></li>`;
@@ -56,10 +57,10 @@ function renderReport(report: AuditReport) {
     <section class="findings" aria-labelledby="findings-title"><h3 id="findings-title">Structural findings</h3><ul>${findings}</ul></section>
     <details class="limits"><summary>What this proof can and cannot establish</summary><ul>${report.limitations.map(x => `<li>${escape(x)}</li>`).join("")}</ul></details>
     ${report.sanitized ? `<div class="sanitized-note"><strong>Sanitized copy created</strong><span>${escape(report.sanitized.path)}</span><small>Verification: ${escape(report.sanitized.verification_verdict)}</small></div>` : ""}
+    ${sample ? `<div class="sample-notice"><strong>Sample project · ${escape(report.source_name)}</strong><span>This built-in result stays in memory and saves nothing.</span></div>` : ""}
     <div class="result-actions">
-      <button id="sanitize" class="button primary" type="button">Create sanitized copy</button>
-      <button id="export-report" class="button secondary" type="button">Export JSON proof</button>
-      <button id="inspect-another" class="text-button" type="button">Inspect another PDF</button>
+      ${sample ? "" : `<button id="sanitize" class="button primary" type="button">Create sanitized copy</button><button id="export-report" class="button secondary" type="button">Export JSON proof</button>`}
+      <button id="inspect-another" class="text-button" type="button">${sample ? "Choose your PDF" : "Inspect another PDF"}</button>
     </div>`;
   result.hidden = false;
   result.querySelector<HTMLButtonElement>("#sanitize")?.addEventListener("click", sanitize);
@@ -153,6 +154,7 @@ async function initLicense() {
 
 function init() {
   el("pick-file").addEventListener("click", event => { event.stopPropagation(); chooseFiles(); });
+  el("load-sample").addEventListener("click", event => { event.stopPropagation(); renderReport(sampleAudit, true); });
   const buyLink = el<HTMLAnchorElement>("buy-pro");
   buyLink.addEventListener("click", event => {
     if ("__TAURI_INTERNALS__" in window) { event.preventDefault(); openUrl(buyLink.href); }

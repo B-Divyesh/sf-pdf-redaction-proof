@@ -1,21 +1,26 @@
 # Redaction Proof
 
-Redaction Proof is a local-first desktop utility for people who need to verify
-a redacted or converted PDF before sharing it. It detects recoverable text
-behind common cover rectangles and redaction annotations, invisible text,
-metadata, annotations, forms, layers, embedded files, and automatic actions.
-It can write a separate sanitized PDF and a portable JSON report tied to both
-files by SHA-256.
+Redaction Proof checks a redacted or converted PDF before you share it. The
+desktop app finds covered text, invisible text, document details, comments,
+forms, layers, attachments, and automatic actions. It writes a separate clean
+PDF and a JSON proof tied to both files by SHA-256.
 
-The app does not upload PDFs, execute PDF JavaScript, or claim legal certainty.
-Its stated limitations remain attached to every report.
+The app does not upload PDFs or run PDF JavaScript. It does not claim legal
+certainty. Every report includes the limits of the check.
 
 ## Product editions
 
-Single-file inspection, sanitizing, and JSON export are free. A US$12 one-time
-Pro license unlocks multi-file selection and a batch result summary. Checkout
-and license verification use the Sociobot billing API; no payment provider is
-embedded in the app.
+Single-file checking, cleaning, and JSON export are free. A US$12 one-time Pro
+license adds multi-file selection and a batch summary. The Sociobot billing API
+handles checkout and license checks.
+
+## Try the sample
+
+Open <https://pdf-redaction-proof.sociobot.in/?demo=1> for the isolated sample.
+It starts with a 12-page board packet result. The sample stays in memory and
+saves no demo records. Choose **Reset demo** to restore it.
+
+The desktop app also offers **Load sample project** on its first screen.
 
 ## Development
 
@@ -51,7 +56,9 @@ AppImage/DEB, then publishes `SHA256SUMS` and `latest.json`.
 ## Install
 
 The website at <https://pdf-redaction-proof.sociobot.in> detects the operating
-system and selects the latest release asset.
+system and selects an installer from GitHub's latest-release API. Successful
+release details are cached for one hour. If GitHub is unavailable, the page
+shows a quiet publishing state and links to the releases page.
 
 ```sh
 curl -fsSL https://pdf-redaction-proof.sociobot.in/install.sh | sh

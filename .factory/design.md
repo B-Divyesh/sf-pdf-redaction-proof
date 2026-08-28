@@ -17,7 +17,7 @@ generic security dashboard.
   stock white.
 - **Raised paper** `#FFFEF8` — work surfaces.
 - **Muted graphite** `#69675F` — explanatory text (tested above 4.5:1 on paper).
-- **Signal vermilion** `#D9472B` — the sole primary action/accent, taken from
+- **Signal vermilion** `#C43B22` — the sole primary action/accent, taken from
   physical redaction markup; white is not used as small text on it.
 - **Proof blue** `#135E75` — verified/neutral technical marks.
 - **Pass green** `#246B4B`, **warning ochre** `#866100`, **danger red**
@@ -51,6 +51,11 @@ there are no modal dead ends. Status always combines a geometric glyph, a
 plain-language word, and supporting text. Keyboard focus is a 3 px proof-blue
 ring with 3 px offset. The phone layout drops decorative coordinate labels and
 stacks every action at full width; the audit itself remains complete.
+
+The landing page uses the same inspection tray for its isolated sample. In demo
+mode, the generated aperture image yields to a populated result at the same
+size, so the transition explains the product instead of decorating it. A
+proof-blue banner keeps the temporary state visible.
 
 ## Motion
 
@@ -89,5 +94,7 @@ Prompt sheet:
 - Generation date: 2026-08-28.
 - License/provenance: original generated asset created for this repository;
   no people, brands, or copyrighted characters.
-- Source candidates and exact prompt sidecars live in `assets/src/`; optimized
-  WebP/AVIF derivatives ship in `site/public/assets/`.
+- Source candidates and exact prompt sidecars live in `assets/src/`.
+  Responsive WebP files and a JPEG fallback ship in `site/public/assets/`.
+- `social-card.webp` is a 1200×630 crop of the same original source. The app
+  icon supplies the local apple-touch icon; the favicon is hand-authored SVG.

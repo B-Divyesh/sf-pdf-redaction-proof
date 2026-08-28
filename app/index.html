@@ -18,8 +18,8 @@
     <main id="main" class="app-shell">
       <section class="intro" aria-labelledby="app-title">
         <p class="eyebrow">PDF STRUCTURE AUDIT / 0.1</p>
-        <h1 id="app-title">See what the black box didn’t remove.</h1>
-        <p class="lede">Inspect text layers, annotations, attachments, actions, and metadata. Your document never leaves this device.</p>
+        <h1 id="app-title">Check a redacted PDF before you send it.</h1>
+        <p class="lede">Find hidden text, attachments, actions, and document details. Your PDF stays on this device.</p>
       </section>
 
       <section class="workbench" aria-label="PDF audit workbench">
@@ -29,7 +29,7 @@
             <h2 id="drop-label">Choose a PDF to inspect</h2>
             <p id="drop-help">Drop a file here, or use Choose PDF. Maximum 500 MB.</p>
           </div>
-          <button id="pick-file" class="button primary" type="button">Choose PDF</button>
+          <div class="start-actions"><button id="pick-file" class="button primary" type="button">Choose PDF</button><button id="load-sample" class="text-button" type="button">Load sample project</button></div>
         </div>
         <div id="offline-note" class="notice" hidden>
           <strong>Offline is fine.</strong> Auditing and sanitizing happen entirely on this device. License checks resume when you reconnect.
@@ -52,7 +52,7 @@
         <div>
           <p class="eyebrow">OPTIONAL BATCH UNLOCK</p>
           <h2 id="license-title">Audit a folder’s worth in one run.</h2>
-          <p>Single-file inspection, sanitizing, and JSON proof stay free. Redaction Proof Pro adds multi-file selection for a one-time US$12 purchase.</p>
+          <p>Single-file checking, cleaning, and JSON proof stay free. Pro adds multi-file selection for a one-time US$12 purchase.</p>
         </div>
         <div class="license-actions">
           <a id="buy-pro" class="button secondary" href="https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout" target="_blank" rel="noreferrer">Buy Pro — $12 once</a>

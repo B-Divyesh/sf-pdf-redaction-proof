@@ -1,6 +1,7 @@
 {
   "slug": "pdf-redaction-proof",
   "title": "Redaction Proof",
+  "summary": "Check a redacted PDF for hidden text and document details before sharing it.",
   "territory": "utilities",
   "user": "People sending converted or redacted PDFs who need evidence that hidden text, metadata, and removable overlays are not still present.",
   "smallest_useful_product": "A local drop-zone that inspects a PDF, flags recoverable text/objects/metadata behind requested redactions, creates a sanitized copy, and emits a machine-readable verification report.",

@@ -4,75 +4,107 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f4f1e8" />
-    <meta name="description" content="Inspect and sanitize redacted PDFs locally. Find hidden text, metadata, annotations, attachments, and actions before sharing." />
+    <meta name="description" content="Check redacted PDFs for hidden text and risky document details. Create a cleaner copy and a proof report on your computer." />
     <link rel="canonical" href="https://pdf-redaction-proof.sociobot.in/" />
-    <meta property="og:title" content="Redaction Proof — Verify a PDF before you share it" />
-    <meta property="og:description" content="Local PDF redaction inspection, sanitizing, and machine-readable proof." />
-    <meta property="og:image" content="https://pdf-redaction-proof.sociobot.in/assets/forensic-aperture.webp" />
-    <title>Redaction Proof — Verify a PDF before you share it</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Redaction Proof — Check a PDF before you send it" />
+    <meta property="og:description" content="Find hidden text and risky document details before sharing a PDF." />
+    <meta property="og:url" content="https://pdf-redaction-proof.sociobot.in/" />
+    <meta property="og:image" content="https://pdf-redaction-proof.sociobot.in/assets/social-card.webp" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Redaction Proof — Check a PDF before you send it" />
+    <meta name="twitter:description" content="Find hidden text and risky document details before sharing a PDF." />
+    <meta name="twitter:image" content="https://pdf-redaction-proof.sociobot.in/assets/social-card.webp" />
+    <title>Redaction Proof — Check a PDF before you send it</title>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <aside id="demo-banner" class="demo-banner" aria-label="Demo mode" hidden>
+      <strong>Demo — sample data, nothing is saved</strong>
+      <span id="demo-status" aria-live="polite"></span>
+      <button id="reset-demo" type="button">Reset demo</button>
+      <a href="/">Start for real</a>
+    </aside>
     <header class="site-header">
       <a class="brand" href="/" aria-label="Redaction Proof home"><span class="brand-mark" aria-hidden="true"><i></i></span><span>Redaction Proof</span></a>
-      <nav aria-label="Main navigation"><a href="#checks">What it checks</a><a href="#pricing">Pricing</a><a href="https://github.com/B-Divyesh/sf-pdf-redaction-proof" target="_blank" rel="noreferrer">Source</a></nav>
+      <nav aria-label="Main navigation"><a href="/?demo=1">Demo</a><a href="#how">How it works</a><a href="/privacy/">Privacy</a><a href="https://github.com/B-Divyesh/sf-pdf-redaction-proof" target="_blank" rel="noreferrer">Source <span class="sr-only">(opens in a new tab)</span></a></nav>
     </header>
-    <main id="main">
+    <main id="main" tabindex="-1">
       <section id="purchase-return" class="purchase-return" aria-labelledby="purchase-title" hidden>
-        <div><p class="eyebrow">PURCHASE COMPLETE</p><h2 id="purchase-title">Your Pro license is ready.</h2><p>Copy this token, open Redaction Proof, then choose “Have a license?” The token is also saved in this browser.</p></div>
+        <div><p class="eyebrow">PURCHASE COMPLETE</p><h2 id="purchase-title">Your Pro license is ready.</h2><p>Copy this token. Open Redaction Proof and choose “Have a license?”</p></div>
         <div><label for="returned-license">License token</label><input id="returned-license" readonly><button id="copy-license" class="button secondary" type="button">Copy license</button><p id="copy-status" aria-live="polite"></p></div>
       </section>
+
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">LOCAL PDF FORENSICS</p>
-          <h1>A black box is not proof of redaction.</h1>
-          <p class="hero-lede">Inspect what a PDF still contains, sanitize risky structure, and keep a machine-readable proof — without uploading the document.</p>
-          <div class="download-group">
-            <a id="download-button" class="button primary" href="https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/latest">Download Redaction Proof</a>
-            <span id="download-note">Detecting your platform…</span>
+          <p class="eyebrow">LOCAL PDF CHECK</p>
+          <h1 id="page-title" tabindex="-1">Check a redacted PDF before you send it.</h1>
+          <p id="hero-lede" class="hero-lede">For people sharing PDFs who need to find hidden text and document details before disclosure.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="/?demo=1">Try it with sample data</a>
+            <span>A built-in check opens. It saves nothing.</span>
           </div>
-          <div class="platform-links" aria-label="Other downloads"><a data-platform="macos" href="#">macOS</a><a data-platform="windows" href="#">Windows</a><a data-platform="linux" href="#">Linux</a></div>
-          <p class="microcopy">Free single-file audits · Pro batch unlock US$12 once · Unsigned v1 installers</p>
+          <div class="download-group">
+            <a id="download-button" class="button secondary" href="https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/latest">View releases</a>
+            <span id="download-note" role="status" aria-live="polite">Checking current downloads…</span>
+          </div>
+          <div class="platform-links" aria-label="Other downloads"><a data-platform="macos" href="https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/latest">macOS</a><a data-platform="windows" href="https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/latest">Windows</a><a data-platform="linux" href="https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/latest">Linux</a></div>
+          <ul class="plain-facts" aria-label="Product facts"><li>PDF checks run on your computer.</li><li>Single-file checks are free.</li><li>Pro costs US$12 once.</li></ul>
         </div>
-        <figure class="hero-art">
+
+        <figure id="hero-art" class="hero-art">
           <picture>
             <source media="(max-width:720px)" srcset="/assets/forensic-aperture-720.webp" type="image/webp" />
-            <img src="/assets/forensic-aperture.webp" width="1280" height="853" alt="Exploded paper layers reveal cyan geometry beneath a black redaction bar through a circular inspection aperture." fetchpriority="high" decoding="async" />
+            <img src="/assets/forensic-aperture.jpg" width="1280" height="853" alt="Paper layers reveal hidden cyan shapes beneath a black redaction bar." fetchpriority="high" decoding="async" />
           </picture>
-          <figcaption><span>VISIBLE PLANE</span><span>RECOVERABLE LAYER</span></figcaption>
+          <figcaption><span>VISIBLE PAGE</span><span>HIDDEN LAYER</span></figcaption>
         </figure>
+
+        <section id="sample-audit" class="sample-audit" aria-labelledby="sample-title" hidden>
+          <div class="sample-file"><span>sample-board-minutes.pdf</span><b>12 pages · 842 KB</b></div>
+          <div class="sample-verdict"><span class="verdict-mark" aria-hidden="true">!</span><div><p class="eyebrow">REVIEW BEFORE SHARING</p><h2 id="sample-title">Recoverable content found</h2><p>Two hidden items remain in this sample PDF.</p></div></div>
+          <dl><div><dt>Covered text</dt><dd>1 on page 4</dd></div><div><dt>Author metadata</dt><dd>1 document field</dd></div><div><dt>File hash</dt><dd><code>6b21…d904</code></dd></div></dl>
+          <p class="sample-next"><strong>Next:</strong> Create a sanitized copy, then inspect that copy again.</p>
+        </section>
       </section>
 
-      <section class="problem" aria-labelledby="problem-title">
-        <p class="section-number">01 / THE FAILURE MODE</p>
-        <div><h2 id="problem-title">Covered is not removed.</h2><p>Many redaction failures look perfect on screen. Underneath, the original text can still be copied, annotations peeled away, metadata read, or attachments opened. A visual check cannot prove structural removal.</p></div>
-        <div class="layer-demo" aria-label="Diagram: visible black overlay sits above recoverable text"><span class="cover"></span><span class="secret">RECOVERABLE TEXT LAYER</span><i></i></div>
-      </section>
-
-      <section id="checks" class="checks" aria-labelledby="checks-title">
-        <div class="section-head"><p class="section-number">02 / THE AUDIT</p><h2 id="checks-title">Five structures. One honest verdict.</h2><p>The app reads the PDF object graph locally and reports evidence by page. Uncertain cases stay marked for review.</p></div>
-        <ol class="check-list">
-          <li><b>01</b><div><h3>Covered & invisible text</h3><p>Finds text painting behind redaction annotations and opaque rectangles, plus invisible render mode.</p></div></li>
-          <li><b>02</b><div><h3>Metadata</h3><p>Flags document info and XMP packets that can reveal authors, dates, software, and workflow details.</p></div></li>
-          <li><b>03</b><div><h3>Annotations & forms</h3><p>Surfaces removable comments, unapplied redaction marks, and retained field values.</p></div></li>
-          <li><b>04</b><div><h3>Attachments & actions</h3><p>Detects embedded files, name trees, automatic actions, and active content.</p></div></li>
-          <li><b>05</b><div><h3>Audit identity</h3><p>Hashes the exact source and sanitized copy with SHA-256 in a portable JSON report.</p></div></li>
+      <section class="walkthrough" aria-labelledby="walkthrough-title">
+        <div class="section-head"><p class="section-number">01 / PRODUCT PREVIEW</p><h2 id="walkthrough-title">See the check before installing.</h2><p>The desktop app ties each finding to a page and file hash.</p></div>
+        <ol class="walkthrough-grid">
+          <li><div class="mini-screen"><span class="mini-aperture" aria-hidden="true"></span><strong>Choose a PDF to inspect</strong><small>Maximum 500 MB</small></div><h3>Choose the finished PDF</h3><p>The original file stays unchanged.</p></li>
+          <li><div class="mini-screen finding-screen"><span>FAIL</span><strong>Covered text found</strong><small>Page 4 · 1 object</small></div><h3>Review each finding</h3><p>The app shows the structure and page.</p></li>
+          <li><div class="mini-screen proof-screen"><span>SHA-256</span><strong>Sanitized copy created</strong><small>Verification: pass</small></div><h3>Save the proof</h3><p>The JSON report identifies both files.</p></li>
         </ol>
       </section>
 
-      <section class="workflow" aria-labelledby="workflow-title">
-        <p class="section-number">03 / LOCAL WORKFLOW</p><h2 id="workflow-title">From uncertainty to a reviewable artifact.</h2>
-        <div class="workflow-grid"><article><span>DROP</span><h3>Choose the output PDF</h3><p>No account and no upload. The file is parsed on your computer with a 500 MB safety limit.</p></article><article><span>READ</span><h3>Review every finding</h3><p>See why each object matters, where it occurs, and whether the verdict is pass, review, or fail.</p></article><article><span>SEAL</span><h3>Sanitize and verify again</h3><p>Remove risky structures, write a separate copy, and generate a hash-linked JSON proof.</p></article></div>
+      <section id="checks" class="checks" aria-labelledby="checks-title">
+        <div class="section-head"><p class="section-number">02 / WHAT IT CHECKS</p><h2 id="checks-title">Look past the black box.</h2><p>Redaction Proof reads the PDF structure. It does not judge the page only by appearance.</p></div>
+        <ol class="check-list">
+          <li><b>01</b><div><h3>Covered and invisible text</h3><p>Find text behind redaction marks and solid rectangles. Find text set not to render.</p></div></li>
+          <li><b>02</b><div><h3>Document details</h3><p>Flag author details, dates, software names, comments, forms, and layers.</p></div></li>
+          <li><b>03</b><div><h3>Attachments and actions</h3><p>Find embedded files, automatic actions, and active content.</p></div></li>
+          <li><b>04</b><div><h3>File identity</h3><p>Record SHA-256 hashes for the source, clean copy, and JSON report.</p></div></li>
+        </ol>
       </section>
+
+      <section id="how" class="workflow" aria-labelledby="workflow-title">
+        <p class="section-number">03 / HOW IT WORKS</p><h2 id="workflow-title">Check, clean, and check again.</h2>
+        <div class="workflow-grid"><article><span>CHOOSE</span><h3>Open the output PDF</h3><p>Select the file you plan to share.</p></article><article><span>REVIEW</span><h3>Read every finding</h3><p>See what remains and where it appears.</p></article><article><span>SAVE</span><h3>Create a separate copy</h3><p>Clean risky structures and export the JSON proof.</p></article></div>
+      </section>
+
+      <section class="warning" aria-labelledby="warning-title"><div class="warning-mark" aria-hidden="true">!</div><div><p class="section-number">04 / PRIVACY AND LIMITS</p><h2 id="warning-title">Your PDF stays on your computer.</h2><p>The app sends no document contents, filenames, hashes, or reports. License checks send only the license token.</p><p>This is a technical check, not legal advice. Rotated text, clipping, and secrets inside images still need visual review.</p><a href="/privacy/">Read the privacy policy</a></div></section>
 
       <section id="pricing" class="pricing" aria-labelledby="pricing-title">
-        <div><p class="section-number">04 / PRICING</p><h2 id="pricing-title">One careful tool. One-time purchase.</h2><p>Use every safety-critical feature free on one PDF at a time. Pro is for teams clearing a folder’s worth of output.</p></div>
-        <div class="price-card"><span class="price">$12 <small>once</small></span><ul><li>Everything in the free edition</li><li>Multi-file selection and batch audit</li><li>License works across your devices</li></ul><a class="button primary" href="https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout">Buy Pro</a><p>Sociobot/Dodo is the merchant of record. Refunds revoke the license automatically.</p></div>
+        <div><p class="section-number">05 / PRICING</p><h2 id="pricing-title">Use every safety check for free.</h2><p>The free edition checks, cleans, and exports one PDF at a time. Pro adds batch work.</p></div>
+        <div class="price-card"><span class="price">$12 <small>once</small></span><ul><li>Every free feature</li><li>Multi-file selection</li><li>Batch result summary</li></ul><a class="button primary" href="https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout">Buy Pro for $12</a><p>Sociobot/Dodo handles payment and refunds.</p></div>
       </section>
-
-      <section class="warning" aria-labelledby="warning-title"><div class="warning-mark" aria-hidden="true">!</div><div><h2 id="warning-title">Proof, with limits stated.</h2><p>Redaction Proof is a technical inspection, not legal advice or a guarantee. Unusual clipping, transformed text, and secrets baked into images still require visual review. The report keeps those limits attached to the result.</p></div></section>
     </main>
-    <footer><div><a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i></span><span>Redaction Proof</span></a><p>Built for the moment before “Send”.</p></div><div><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/install.sh">install.sh</a><a href="/install.ps1">install.ps1</a></div><p class="disclosure">Original AI-generated hero illustration, created for this product. No telemetry.</p></footer>
+    <footer><div><a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i></span><span>Redaction Proof</span></a><p>Check a redacted PDF before you send it.</p></div><div><a href="/?demo=1">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/install.sh">install.sh</a><a href="/install.ps1">install.ps1</a></div><p class="disclosure">Built by Param Factory · v0.1.0 · Original generated art · No telemetry</p></footer>
     <script type="module" src="/src/site.ts"></script>
   </body>
 </html>

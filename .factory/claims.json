@@ -1,0 +1,37 @@
+[
+  {
+    "id": "release-downloads",
+    "claim": "The site selects a current installer for macOS, Windows, or Linux.",
+    "where": "landing download controls",
+    "test": "npx playwright test --grep @claim:release-downloads",
+    "sandbox": "mocked GitHub latest-release API with one real-shaped asset per platform; assert selected URL and one-hour cache"
+  },
+  {
+    "id": "demo-isolation",
+    "claim": "The sample check uses built-in data and saves no demo records.",
+    "where": "landing demo banner and sample result",
+    "test": "npx playwright test --grep @claim:demo-isolation",
+    "sandbox": "fresh browser context at ?demo=1; reset sample; assert the demo namespace stays empty"
+  },
+  {
+    "id": "sample-findings",
+    "claim": "The sample check shows covered text and author metadata.",
+    "where": "landing demo result",
+    "test": "npx playwright test --grep @claim:sample-findings",
+    "sandbox": "fresh browser context at ?demo=1 with built-in sample result"
+  },
+  {
+    "id": "single-file-price",
+    "claim": "Single-file checks are free; Pro batch work costs US$12 once.",
+    "where": "landing facts and pricing",
+    "test": "npx playwright test --grep @claim:single-file-price",
+    "sandbox": "fresh browser context; assert free limit, exact price, and Sociobot checkout URL"
+  },
+  {
+    "id": "local-processing",
+    "claim": "The desktop sample runs locally without an external request.",
+    "where": "desktop first-run sample and README",
+    "test": "npx playwright test --grep @claim:local-processing",
+    "sandbox": "fresh app browser context; load the built-in sample and reject any non-local request"
+  }
+]

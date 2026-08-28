@@ -1,76 +1,88 @@
-# Redaction Proof v0.1.0 — handoff
+# Redaction Proof repair — handoff
 
-## What was built
+## What changed
 
-- Tauri 2 desktop app with a Rust PDF parser and vanilla TypeScript interface.
-- Local inspection for covered and invisible text operators, document/XMP
-  metadata, annotations, attachments/name trees, actions, forms, and optional
-  content layers.
-- Non-destructive sanitizing to a new `.sanitized.pdf`: removes identified
-  covered/invisible text operations and risky document structures, reapplies
-  redaction regions, hashes the output, and immediately re-audits it.
-- Portable JSON proof with schema/app version, timestamp, source/output SHA-256,
-  counts, per-page findings, verdict, and explicit limitations. Local paths are
-  removed from exported reports.
-- Free complete single-file workflow and a US$12 one-time Pro license for batch
-  selection/results. Checkout, callback capture, paste-to-restore, daily
-  verification caching, revocation handling, and offline optimistic unlock use
-  the Sociobot contract.
-- Responsive download site, OS detection, generated hero art, privacy and terms
-  pages, checksum-verifying shell/PowerShell installers, and secure headers.
-- GitHub Actions release pipeline for universal macOS DMG, Windows MSI/EXE,
-  Linux AppImage/DEB, `SHA256SUMS`, and `latest.json`.
+- Reproduced the failed browser path from candidate `290ab6a`: the release
+  manifest request redirects from `github.com` without an
+  `Access-Control-Allow-Origin` response header.
+- Replaced that request with GitHub's CORS-enabled latest-release API:
+  `https://api.github.com/repos/B-Divyesh/sf-pdf-redaction-proof/releases/latest`.
+- Selects the published DMG, MSI, and AppImage from API asset data. Successful
+  metadata is cached in local storage for one hour.
+- A missing release, incomplete asset set, rate limit, offline request, invalid
+  response, or disabled storage now shows “Downloads are being published” and
+  links to GitHub Releases. Every promise and response branch is handled.
+- Preserved the Tauri 2 desktop app, checksum installers, GitHub Actions matrix,
+  GitHub Release assets, `SHA256SUMS`, and `latest.json` generation.
+- Added the isolated `?demo=1` sample, persistent reset/exit banner, and a
+  first-run **Load sample project** action in the desktop UI. Demo state is
+  memory-only and never uses the real-data namespace.
+- Reworked the first screen in plain words, added the standard product-preview
+  and site section order, route metadata, social image, icons, designed 404,
+  security configuration, and consistent route chrome.
+- Added `.factory/claims.json`, `.factory/demo.md`, and the sentence-by-sentence
+  `.factory/copy-audit.md`.
 
-## Verification completed locally
+## Regression coverage
 
-- `npm test`: 6 TypeScript unit assertions, 4 Rust tests, and 6 Playwright
-  checks pass. Playwright covers Chromium desktop and a 390 px mobile viewport;
-  axe reports zero serious/critical issues on both the site and app empty state.
-- Seeded hidden-text regression: 20/20 opaque-overlay cases detected (100%),
-  plus invisible-text and metadata fixtures; sanitized fixtures re-audit pass.
-- `npm run check`: TypeScript and Rust checks pass.
-- `npm run build`: reproducibly emits `dist/app` and `dist/site`; the deploy
-  command is `npm run build:site` and `dist/site/index.html` is present.
-- Bundle sizes: app JS 26.98 KB / CSS 10.73 KB; site JS 2.69 KB / CSS 8.87 KB;
-  responsive hero WebP 16.9 KB mobile and 44.1 KB desktop.
-- Lighthouse mobile, local production preview: Performance 100,
-  Accessibility 100, Best Practices 100, SEO 100; LCP 1.2 s, CLS 0,
-  total blocking time 0 ms, and no console errors.
-- `npm audit`: 0 vulnerabilities.
-- GitHub Actions run
-  [`33159767413`](https://github.com/B-Divyesh/sf-pdf-redaction-proof/actions/runs/33159767413)
-  passed for universal macOS, Windows x64, and Linux x64. Release
-  [`v0.1.0`](https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/tag/v0.1.0)
-  contains DMG, MSI, AppImage, DEB, RPM, `SHA256SUMS`, and valid `latest.json`
-  assets. A clean public download of `Redaction.Proof_0.1.0_amd64.deb` was
-  verified successfully against the published checksum.
+The focused tests now prove:
+
+- no browser request uses `releases/latest/download/latest.json`;
+- current API assets resolve to platform download links;
+- a successful result is reused from the one-hour cache;
+- fresh cached links remain available when the API is offline;
+- API failure renders the calm publishing state without a page error;
+- desktop and 390 px mobile layouts pass axe serious/critical checks;
+- the keyboard skip link moves focus to `<main>`;
+- demo reset and storage isolation work from `?demo=1`;
+- every claim tag in `.factory/claims.json` passes.
+
+## Verification evidence
+
+- Clean dependency install: `npm ci` — 67 packages, 0 vulnerabilities.
+- Original static deploy build command: `npm run build:site` — passed and wrote
+  `dist/site/index.html`.
+- Full artifact build: `npm run build` — passed; wrote `dist/app` and
+  `dist/site`.
+- Static output: site JS 4.53 KB raw / 1.96 KB gzip; site CSS 11.52 KB raw /
+  3.32 KB gzip; mobile hero WebP 16.9 KB; desktop hero WebP 44.1 KB.
+- `npm run check` — TypeScript and Rust checks passed.
+- `npm test` — 9 Vitest assertions, 4 Rust tests, and 22 Playwright tests
+  passed. Playwright covered desktop Chromium and a 390 px mobile profile.
+- `npx playwright test --grep '@claim:'` — 10/10 project executions passed.
+- `npm audit --audit-level=high` — 0 vulnerabilities.
+- Local browser identity check — one `<h1>`, exact title, no horizontal
+  overflow, no console/page errors, and a real v0.1.0 AppImage link on desktop
+  and mobile demo routes.
+- Lighthouse mobile production preview — Performance 100, Accessibility 100,
+  Best Practices 100, SEO 100, LCP 1.1 s, CLS 0, TBT 0 ms.
+- GitHub API response — `Access-Control-Allow-Origin: *`; release `v0.1.0`
+  includes DMG, MSI, AppImage, DEB, RPM, EXE, `SHA256SUMS`, and `latest.json`.
+- Clean public DEB download checksum matched `SHA256SUMS`:
+  `b32407fb180fc4d5aeaca313dada3724cd986888d338aacbf7ca80aac0e39ee2`.
+
+## Deployment
+
+- Configuration: `npm run build:site`, deploy `dist/site` as the existing
+  static artifact at `https://pdf-redaction-proof.sociobot.in`.
+- Live deployment and post-deploy identity evidence will be appended after the
+  repair commit is pushed.
 
 ## Known limits
 
-- Geometry matching is intentionally conservative and strongest for standard,
-  axis-aligned text operators, opaque rectangle fills, and `/Redact`
-  annotations. Rotated/transformed glyphs, clipped paths, Form XObjects, and
-  rasterized secrets may need manual review; the app never claims otherwise.
-- PDF parsing runs in a dedicated, non-executing worker process; Unix builds
-  additionally enforce 60-second CPU and 1.5 GB address-space limits. v0.1 does
-  not yet apply an OS-level syscall/filesystem policy, and Windows relies on
-  process separation plus the 500 MB input bound.
-- Generated releases are unsigned until operator certificates are configured.
-- Browser storage cannot directly unlock a desktop app, so the post-checkout
-  landing panel exposes a copy button and the app provides token paste/restore.
+- PDF geometry matching remains strongest for normal axis-aligned text,
+  opaque rectangles, and redaction annotations. Rotated text, unusual clipping,
+  Form XObjects, and secrets inside images require visual review.
+- Releases are unsigned until the operator supplies Apple and Windows signing
+  credentials. This remains stated beside the installation instructions.
+- Browser storage cannot activate the desktop app directly. The purchase return
+  still exposes the token for copy, and the app accepts a pasted token.
 
 ## Needs operator action
 
-1. Register the `pdf-redaction-proof` product, US$12 one-time price, and return
-   URL with the Sociobot billing API. The source intentionally contains no
-   hard-coded provider product ID.
-2. Configure deployment with `npm run build:site` and `dist/site`.
-3. Optional signing/notarization requires operator-owned credentials. Use
-   secrets named `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`,
-   `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID`,
-   `WINDOWS_CERT_PFX`, and `WINDOWS_CERT_PASSWORD`, then wire them into the
-   release workflow; the current workflow deliberately does not reference
-   absent secrets and produces unsigned artifacts.
-4. For a stronger hostile-file boundary in v0.2, add per-platform syscall and
-   filesystem policy around the existing worker, plus transformed text, Form
-   XObject, clipping, and image/OCR fixtures.
+- Optional signing/notarization needs `APPLE_CERTIFICATE`,
+  `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`,
+  `APPLE_PASSWORD`, `APPLE_TEAM_ID`, `WINDOWS_CERT_PFX`, and
+  `WINDOWS_CERT_PASSWORD`.
+- A future parser release can add transformed text, Form XObject, clipping, and
+  image/OCR fixtures without changing this deployment class.
