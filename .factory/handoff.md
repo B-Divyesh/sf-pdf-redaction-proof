@@ -65,8 +65,19 @@ The focused tests now prove:
 
 - Configuration: `npm run build:site`, deploy `dist/site` as the existing
   static artifact at `https://pdf-redaction-proof.sociobot.in`.
-- Live deployment and post-deploy identity evidence will be appended after the
-  repair commit is pushed.
+- Repair commit `b088443` was pushed to `origin/main` before deployment.
+- `/opt/fleet/lib/deploy-static.sh pdf-redaction-proof /work/repo/dist/site`
+  completed successfully. Azure deployment ID:
+  `62d9b30c-7dd7-4344-83c8-eb1f09da07f9`.
+- Factory `verify-url.sh` returned HTTPS 200 in 897 ms with zero errors, title
+  and `lang` present, one `<h1>`, one `<main>`, and no missing image alt text or
+  unnamed buttons.
+- A fresh live Chromium context requested only the CORS-enabled GitHub API,
+  resolved the v0.1.0 AppImage, and made zero old-manifest requests. `/`,
+  `/?demo=1`, `/privacy/`, `/terms/`, and `/404/` had their expected titles,
+  one `<h1>`, no overflow, no console errors, and no failed requests.
+- Live response headers include CSP limited to the same origin, GitHub API, and
+  Sociobot checkout, plus HSTS, `nosniff`, referrer, and permissions policies.
 
 ## Known limits
 
