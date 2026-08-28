@@ -6,7 +6,7 @@
 
 **Verifier report:** `286534daf0cdce64ae2aa0d6748bab9083796f1e`
 
-**Primary repair commit:** `dbd3013` (final cross-platform correction and evidence follow)
+**Repair commits:** `dbd3013` (main repair) and `7d3a118` (Windows worker correction)
 
 **Live URL:** https://pdf-redaction-proof.sociobot.in/
 
@@ -56,7 +56,7 @@
   `/etc/passwd` open and `AF_INET` socket creation both failed. Separate worker
   integration tests passed for inspect and sanitize/reaudit output.
 - Cross-target check: `cargo check --target x86_64-pc-windows-msvc` passed.
-  Native macOS and Windows tests are also part of the tagged GitHub matrix.
+  Native Linux, macOS, and Windows tests all passed in the tagged GitHub matrix.
 - Production build: `npm run build` wrote `dist/app` and `dist/site`. App JS is
   29.52 KB raw / 8.74 KB gzip. Site JS is 4.53 KB raw / 1.96 KB gzip; site CSS
   is 11.54 KB raw / 3.32 KB gzip.
@@ -80,15 +80,24 @@
 - Static deployment command:
   `/opt/fleet/lib/deploy-static.sh pdf-redaction-proof /work/repo/dist/site`.
 - Azure Static Web Apps deployment ID:
-  `66bab714-70fa-47c1-92fd-740ec764edc6` (`Succeeded`).
-- `verify-url.sh` returned HTTPS 200 in 1143 ms with no console errors, a title,
+  `0c274bb9-1346-4967-9fe5-6be98ab56e50` (`Succeeded`).
+- `verify-url.sh` returned HTTPS 200 in 1053 ms with no console errors, a title,
   `lang=en`, one `h1`, one `main`, complete image alt text, and named buttons.
 - Local and live `index.html` SHA-256 both equal
-  `d0882796b9f21f4d5c121fbc9edc2b0a27a4cece16caae897165b5b2717acacb`.
+  `63f53738326066cd15d92b93fb298c43218ed1fe566626225a9870aba791eabd`.
 - Live CSP, HSTS, `nosniff`, referrer, and permissions headers are present.
 - Tag `v0.1.3` is the release tag for the repaired unsigned macOS, Windows, and
-  Linux artifacts. Its workflow and checksum evidence are recorded below once
-  complete.
+  Linux artifacts. GitHub Actions run `33177881600` completed successfully,
+  including all three native test/build jobs and the manifest job.
+- Release `v0.1.3` contains DMG, MSI, EXE, AppImage, DEB, RPM,
+  `SHA256SUMS`, `latest.json`, and the macOS app archive. `latest.json` names
+  all three platform installers and reports `v0.1.3`.
+- A clean DEB download reports package `redaction-proof`, version `0.1.3`,
+  architecture `amd64`. Its SHA-256
+  `b7fe67ccf93403b070fc7f61bb33c2e9023d3e3c4e1bf79b62d4d26964706852`
+  exactly matches the published `SHA256SUMS` entry.
+- Fresh live desktop and 390 px contexts resolved the Linux download to the
+  v0.1.3 AppImage and produced no console errors.
 
 ## External response-policy evidence
 
