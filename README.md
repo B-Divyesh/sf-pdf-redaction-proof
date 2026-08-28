@@ -76,9 +76,12 @@ must right-click the app and choose **Open**, and Windows may show SmartScreen.
 
 ## How the audit works
 
-The Rust core parses PDF object structures in a separate worker process without
-executing embedded content. It enforces a 500 MB input limit; Unix builds also
-cap the worker at 60 CPU seconds and 1.5 GB address space. Standard
+The trusted desktop process opens the chosen PDF and sends only its bytes and
+base name to a separate parser process. The parser enters an operating-system
+sandbox before parsing: Linux denies filesystem and network system calls with
+Landlock and seccomp, macOS uses an application sandbox profile, and Windows
+uses a restricted token. The worker also has a 500 MB input limit; Unix builds
+cap it at 60 CPU seconds and 1.5 GB address space. Standard
 text operators are spatially compared with later filled rectangles and PDF
 redaction annotations. Sanitizing removes identified overlapping/invisible text
 operators and strips metadata, name trees, actions, annotations, forms, and

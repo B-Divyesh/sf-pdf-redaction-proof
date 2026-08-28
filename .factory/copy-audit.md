@@ -28,7 +28,7 @@ No sentence exceeds 22 words. No banned marketing term appears.
 | 7 | Find text set not to render. |
 | 10 | Flag author details, dates, software names, comments, forms, and layers. |
 | 7 | Find embedded files, automatic actions, and active content. |
-| 11 | Record SHA-256 hashes for the source, clean copy, and JSON report. |
+| 12 | Record SHA-256 hashes for the source and clean copy in the JSON report. |
 | 6 | Check, clean, and check again. |
 | 7 | Select the file you plan to share. |
 | 8 | See what remains and where it appears. |

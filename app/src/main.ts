@@ -1,10 +1,11 @@
 import "./style.css";
+import "./touch.css";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import type { AuditReport, Finding } from "./types";
-import { cachedUnlock, captureReturnedLicense, storedToken, verifyLicense } from "./license";
+import { cachedUnlock, captureReturnedLicense, LicenseRateLimitError, storedToken, verifyLicense } from "./license";
 import { reportJson, safeBasename, verdictCopy } from "./report";
 import { sampleAudit } from "./sample";
 
@@ -132,7 +133,7 @@ async function initLicense() {
   const status = el("license-status");
   const update = (valid: boolean) => {
     proUnlocked = valid;
-    status.textContent = valid ? "Pro active · batch selection enabled" : token ? "License no longer active · free edition available" : "Free edition · one file at a time";
+    status.textContent = valid ? "Pro active · batch selection enabled" : storedToken() ? "License no longer active · free edition available" : "Free edition · one file at a time";
   };
   update(cachedUnlock());
   if (token) verifyLicense(token).then(update).catch(() => { if (!navigator.onLine) status.textContent = "Offline · using last verified license state"; });
@@ -144,10 +145,17 @@ async function initLicense() {
   });
   el<HTMLFormElement>("license-form").addEventListener("submit", async event => {
     event.preventDefault();
+    const submit = el<HTMLFormElement>("license-form").querySelector<HTMLButtonElement>("button[type=submit]");
     const value = el<HTMLInputElement>("license-token").value.trim();
     if (!value) { status.textContent = "Paste the license token from your receipt."; return; }
     status.textContent = "Checking license…";
-    try { update(await verifyLicense(value, true)); } catch { status.textContent = "Could not reach the license service. Try again when online."; }
+    if (submit) submit.disabled = true;
+    try { update(await verifyLicense(value, true)); }
+    catch (error) {
+      status.textContent = error instanceof LicenseRateLimitError
+        ? `Too many license checks. Try again in ${error.retryAfter} seconds.`
+        : "Could not reach the license service. Try again when online.";
+    } finally { if (submit) submit.disabled = false; }
   });
   if (storedToken() && !token) update(cachedUnlock());
 }

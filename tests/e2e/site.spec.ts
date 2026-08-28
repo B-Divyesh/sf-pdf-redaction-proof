@@ -37,6 +37,14 @@ test("landing page has one clear heading and no serious accessibility violations
   expect(errors).toEqual({ consoleErrors: [], failedRequests: [] });
 });
 
+test("dark and reduced-motion modes have no serious accessibility violations", async ({ page }) => {
+  await mockRelease(page);
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.goto("/");
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter(v => ["serious", "critical"].includes(v.impact || ""))).toEqual([]);
+});
+
 test("@claim:release-downloads resolves installers through the GitHub API and caches the result", async ({ page }) => {
   let apiCalls = 0;
   const requests: string[] = [];
@@ -109,6 +117,18 @@ test("@claim:single-file-price states the free limit and exact one-time price", 
   await expect(page.getByText("Single-file checks are free.")).toBeVisible();
   await expect(page.getByText("Pro costs US$12 once.")).toBeVisible();
   await expect(page.getByRole("link", { name: "Buy Pro for $12" })).toHaveAttribute("href", "https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout");
+  await page.goto("http://127.0.0.1:1420");
+  await expect(page.getByText("Single-file checking, cleaning, and JSON proof stay free.")).toBeVisible();
+  await expect(page.getByText("Pro adds multi-file selection for a one-time US$12 purchase.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Buy Pro — $12 once" })).toHaveAttribute("href", "https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout");
+});
+
+test("home wordmark has a 44px minimum pointer target", async ({ page }) => {
+  await mockRelease(page);
+  await page.goto("/");
+  const box = await page.locator(".site-header .brand").boundingBox();
+  expect(box?.width).toBeGreaterThanOrEqual(44);
+  expect(box?.height).toBeGreaterThanOrEqual(44);
 });
 
 test("keyboard users can skip to the main content", async ({ page }) => {

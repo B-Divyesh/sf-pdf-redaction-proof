@@ -2,36 +2,71 @@
   {
     "id": "release-downloads",
     "claim": "The site selects a current installer for macOS, Windows, or Linux.",
-    "where": "landing download controls",
-    "test": "npx playwright test --grep @claim:release-downloads",
+    "where": "landing download controls and README",
+    "test": "npx playwright test --grep @claim:release-downloads --workers=1",
     "sandbox": "mocked GitHub latest-release API with one real-shaped asset per platform; assert selected URL and one-hour cache"
   },
   {
     "id": "demo-isolation",
     "claim": "The sample check uses built-in data and saves no demo records.",
-    "where": "landing demo banner and sample result",
-    "test": "npx playwright test --grep @claim:demo-isolation",
+    "where": "landing demo banner, privacy copy, and README",
+    "test": "npx playwright test --grep @claim:demo-isolation --workers=1",
     "sandbox": "fresh browser context at ?demo=1; reset sample; assert the demo namespace stays empty"
   },
   {
     "id": "sample-findings",
     "claim": "The sample check shows covered text and author metadata.",
-    "where": "landing demo result",
-    "test": "npx playwright test --grep @claim:sample-findings",
+    "where": "landing demo result and README",
+    "test": "npx playwright test --grep @claim:sample-findings --workers=1",
     "sandbox": "fresh browser context at ?demo=1 with built-in sample result"
   },
   {
     "id": "single-file-price",
-    "claim": "Single-file checks are free; Pro batch work costs US$12 once.",
-    "where": "landing facts and pricing",
-    "test": "npx playwright test --grep @claim:single-file-price",
-    "sandbox": "fresh browser context; assert free limit, exact price, and Sociobot checkout URL"
+    "claim": "Single-file checking, cleaning, and JSON export are free; Pro batch work costs US$12 once.",
+    "where": "landing facts and pricing, app license panel, README",
+    "test": "npx playwright test --grep @claim:single-file-price --workers=1",
+    "sandbox": "fresh site and app contexts; assert free features, exact price, batch scope, and Sociobot checkout URL"
   },
   {
     "id": "local-processing",
-    "claim": "The desktop sample runs locally without an external request.",
-    "where": "desktop first-run sample and README",
-    "test": "npx playwright test --grep @claim:local-processing",
-    "sandbox": "fresh app browser context; load the built-in sample and reject any non-local request"
+    "claim": "PDF parsing is local and the parser sandbox cannot open files or network sockets.",
+    "where": "landing privacy copy, desktop privacy assurances, privacy policy, README",
+    "test": "cargo test --manifest-path src-tauri/Cargo.toml claim_document_privacy_sandbox -- --nocapture",
+    "sandbox": "forked Linux worker enters the production Landlock/seccomp policy; assert open and socket system calls return permission denied"
+  },
+  {
+    "id": "detection-corpus",
+    "claim": "The app detects covered and invisible text, metadata, annotations, attachments, actions, forms, and layers in at least 95% of the regression corpus.",
+    "where": "landing checks, app introduction, README, researched success measure",
+    "test": "cargo test --manifest-path src-tauri/Cargo.toml claim_core_detection_corpus -- --nocapture",
+    "sandbox": "24 committed varied PDF fixtures; assert each expected finding and print detected/total by category"
+  },
+  {
+    "id": "sanitized-copy",
+    "claim": "Sanitizing leaves the original bytes unchanged, creates a separate copy, removes detected risky structures, and checks the copy again.",
+    "where": "landing preview and workflow, app result, README",
+    "test": "cargo test --manifest-path src-tauri/Cargo.toml claim_sanitized_copy -- --nocapture",
+    "sandbox": "sanitize every risky corpus fixture in memory; compare original hash and bytes, then re-inspect the separate result for a pass"
+  },
+  {
+    "id": "json-proof",
+    "claim": "The JSON proof identifies the source and sanitized copy by SHA-256 without exporting a local path.",
+    "where": "landing preview and file identity, app result, README",
+    "test": "npx vitest run --testNamePattern @claim:json-proof",
+    "sandbox": "serialize a report with source and sanitized hashes; assert both identities remain and both local paths are absent"
+  },
+  {
+    "id": "input-limit",
+    "claim": "The app rejects a PDF larger than 500 MB before reading it.",
+    "where": "desktop picker and README",
+    "test": "cargo test --manifest-path src-tauri/Cargo.toml claim_input_limit -- --nocapture",
+    "sandbox": "create a sparse 500 MB plus one byte PDF path; assert TooLarge before file contents are read"
+  },
+  {
+    "id": "offline-sample",
+    "claim": "The built-in desktop sample works with no external request.",
+    "where": "desktop offline state and README",
+    "test": "npx playwright test --grep @claim:offline-sample --workers=1",
+    "sandbox": "fresh desktop UI context with all external requests recorded; load the built-in sample and assert none occur"
   }
 ]

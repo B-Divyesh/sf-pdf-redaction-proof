@@ -8,6 +8,7 @@ use sha2::{Digest, Sha256};
 use std::{
     collections::{HashMap, HashSet},
     fs,
+    io::Read,
     path::{Path, PathBuf},
 };
 use thiserror::Error;
@@ -357,28 +358,45 @@ fn hash_bytes(bytes: &[u8]) -> String {
     hex::encode(Sha256::digest(bytes))
 }
 
-fn load(path: &Path) -> Result<(Document, Vec<u8>), PdfError> {
-    if path
+pub(crate) fn validate_input(path: &Path) -> Result<Vec<u8>, PdfError> {
+    if !path
         .extension()
         .and_then(|x| x.to_str())
-        .map(|x| !x.eq_ignore_ascii_case("pdf"))
-        .unwrap_or(true)
+        .is_some_and(|x| x.eq_ignore_ascii_case("pdf"))
     {
         return Err(PdfError::NotPdf);
     }
-    let meta = fs::metadata(path).map_err(|e| PdfError::Read(e.to_string()))?;
+    let mut file = fs::File::open(path).map_err(|e| PdfError::Read(e.to_string()))?;
+    let meta = file.metadata().map_err(|e| PdfError::Read(e.to_string()))?;
     if meta.len() > MAX_BYTES {
         return Err(PdfError::TooLarge);
     }
-    let bytes = fs::read(path).map_err(|e| PdfError::Read(e.to_string()))?;
+    let mut bytes = Vec::with_capacity(meta.len() as usize);
+    file.by_ref()
+        .take(MAX_BYTES + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|e| PdfError::Read(e.to_string()))?;
+    validate_bytes(&bytes)?;
+    Ok(bytes)
+}
+
+fn validate_bytes(bytes: &[u8]) -> Result<(), PdfError> {
+    if bytes.len() as u64 > MAX_BYTES {
+        return Err(PdfError::TooLarge);
+    }
     if !bytes.starts_with(b"%PDF-") {
         return Err(PdfError::NotPdf);
     }
-    let doc = Document::load_mem(&bytes).map_err(|e| PdfError::Parse(e.to_string()))?;
+    Ok(())
+}
+
+fn load_bytes(bytes: &[u8]) -> Result<Document, PdfError> {
+    validate_bytes(bytes)?;
+    let doc = Document::load_mem(bytes).map_err(|e| PdfError::Parse(e.to_string()))?;
     if doc.is_encrypted() {
         return Err(PdfError::Encrypted);
     }
-    Ok((doc, bytes))
+    Ok(doc)
 }
 
 fn build_report(
@@ -475,13 +493,26 @@ fn build_report(
     Ok((report, scans))
 }
 
-pub fn inspect(path: &str) -> Result<AuditReport, PdfError> {
-    let path = Path::new(path);
-    let (doc, bytes) = load(path)?;
-    Ok(build_report(path, &doc, &bytes)?.0)
+pub(crate) fn inspect_bytes(source_name: &str, bytes: &[u8]) -> Result<AuditReport, PdfError> {
+    let doc = load_bytes(bytes)?;
+    Ok(build_report(Path::new(source_name), &doc, bytes)?.0)
 }
 
-fn output_path(input: &Path) -> PathBuf {
+#[cfg(test)]
+pub fn inspect(path: &str) -> Result<AuditReport, PdfError> {
+    let path = Path::new(path);
+    let bytes = validate_input(path)?;
+    let mut report = inspect_bytes(
+        path.file_name()
+            .and_then(|x| x.to_str())
+            .unwrap_or("document.pdf"),
+        &bytes,
+    )?;
+    report.source_path = path.to_string_lossy().into_owned();
+    Ok(report)
+}
+
+pub(crate) fn output_path(input: &Path) -> PathBuf {
     let stem = input
         .file_stem()
         .and_then(|s| s.to_str())
@@ -517,10 +548,13 @@ fn clean_catalog(doc: &mut Document) {
     doc.trailer.remove(b"Prev");
 }
 
-pub fn sanitize(path: &str) -> Result<AuditReport, PdfError> {
-    let input = Path::new(path);
-    let (mut doc, bytes) = load(input)?;
-    let (mut original, scans) = build_report(input, &doc, &bytes)?;
+pub(crate) fn sanitize_bytes(
+    source_name: &str,
+    bytes: &[u8],
+) -> Result<(AuditReport, Vec<u8>), PdfError> {
+    let input = Path::new(source_name);
+    let mut doc = load_bytes(bytes)?;
+    let (mut original, scans) = build_report(input, &doc, bytes)?;
     for (page_id, scan) in scans {
         let bytes = doc
             .get_page_content(page_id)
@@ -563,27 +597,158 @@ pub fn sanitize(path: &str) -> Result<AuditReport, PdfError> {
     clean_catalog(&mut doc);
     doc.prune_objects();
     doc.compress();
-    let output = output_path(input);
-    doc.save(&output)
+    let mut clean_bytes = Vec::new();
+    doc.save_to(&mut clean_bytes)
         .map_err(|e| PdfError::Write(e.to_string()))?;
-    let verification = inspect(
-        output
-            .to_str()
-            .ok_or_else(|| PdfError::Write("Output path is not valid UTF-8".into()))?,
-    )?;
+    let verification = inspect_bytes("sanitized.pdf", &clean_bytes)?;
     original.sanitized = Some(SanitizedInfo {
-        path: output.to_string_lossy().into_owned(),
+        path: "sanitized.pdf".into(),
         sha256: verification.source_sha256.clone(),
         verification_verdict: verification.verdict,
     });
-    Ok(original)
+    Ok((original, clean_bytes))
+}
+
+#[cfg(test)]
+pub fn sanitize(path: &str) -> Result<AuditReport, PdfError> {
+    let input = Path::new(path);
+    let bytes = validate_input(input)?;
+    let source_name = input
+        .file_name()
+        .and_then(|x| x.to_str())
+        .unwrap_or("document.pdf");
+    let (mut report, clean_bytes) = sanitize_bytes(source_name, &bytes)?;
+    let output = output_path(input);
+    fs::write(&output, clean_bytes).map_err(|e| PdfError::Write(e.to_string()))?;
+    report.source_path = input.to_string_lossy().into_owned();
+    if let Some(info) = &mut report.sanitized {
+        info.path = output.to_string_lossy().into_owned();
+    }
+    Ok(report)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use lopdf::{dictionary, Object};
+    use serde::Deserialize;
     use tempfile::tempdir;
+
+    #[derive(Deserialize)]
+    struct CorpusFixture {
+        name: String,
+        kind: String,
+        expected: String,
+    }
+
+    fn corpus_manifest() -> Vec<CorpusFixture> {
+        serde_json::from_str(include_str!(
+            "../../tests/fixtures/pdf-corpus/manifest.json"
+        ))
+        .unwrap()
+    }
+
+    fn corpus_pdf(fixture: &CorpusFixture) -> Vec<u8> {
+        let mut doc = Document::with_version("1.7");
+        let pages_id = doc.new_object_id();
+        let page_id = doc.new_object_id();
+        let font_id =
+            doc.add_object(dictionary! {"Type"=>"Font","Subtype"=>"Type1","BaseFont"=>"Helvetica"});
+        let resources_id = doc.add_object(dictionary! {"Font"=>dictionary!{"F1"=>font_id}});
+        let content = match fixture.kind.as_str() {
+            "invisible_text" => "BT /F1 12 Tf 3 Tr 72 700 Td (hidden alpha) Tj ET",
+            "invisible_text_large" => "BT /F1 24 Tf 3 Tr 140 420 Td [(hidden) 20 ( beta)] TJ ET",
+            "covered_text" => "BT /F1 12 Tf 72 700 Td (covered alpha) Tj ET 68 697 150 18 re f",
+            "covered_text_array" => {
+                "BT /F1 11 Tf 90 530 Td [(covered) 10 ( beta)] TJ ET 88 527 160 17 re f"
+            }
+            "covered_text_shifted" => {
+                "BT /F1 16 Tf 210 310 Td (covered gamma) Tj ET 205 306 190 24 re f"
+            }
+            "redaction_annotation" => "BT /F1 12 Tf 72 700 Td (covered by annotation) Tj ET",
+            "safe_visible_text" => "BT /F1 12 Tf 72 700 Td (ordinary visible text) Tj ET",
+            _ => "",
+        };
+        let content_id = doc.add_object(Stream::new(dictionary! {}, content.as_bytes().to_vec()));
+        let mut page = dictionary! {
+            "Type"=>"Page", "Parent"=>pages_id,
+            "MediaBox"=>vec![0.into(),0.into(),612.into(),792.into()],
+            "Contents"=>content_id, "Resources"=>resources_id
+        };
+        let annotation_kind = match fixture.kind.as_str() {
+            "redaction_annotation" => Some("Redact"),
+            "annotation_text" => Some("Text"),
+            "annotation_stamp" => Some("Stamp"),
+            "attachment_annotation" | "attachment_both" => Some("FileAttachment"),
+            "action_annotation" => Some("Link"),
+            _ => None,
+        };
+        if let Some(subtype) = annotation_kind {
+            let mut annotation = dictionary! {
+                "Type"=>"Annot", "Subtype"=>subtype,
+                "Rect"=>vec![68.into(),697.into(),230.into(),720.into()]
+            };
+            if fixture.kind == "action_annotation" {
+                annotation.set("A", dictionary! {"S"=>"URI","URI"=>Object::string_literal("https://example.invalid")});
+            }
+            let annotation_id = doc.add_object(annotation);
+            page.set("Annots", vec![annotation_id.into()]);
+        }
+        doc.objects.insert(page_id, Object::Dictionary(page));
+        doc.objects.insert(
+            pages_id,
+            Object::Dictionary(dictionary! {
+                "Type"=>"Pages", "Kids"=>vec![page_id.into()], "Count"=>1
+            }),
+        );
+        let mut catalog = dictionary! {"Type"=>"Catalog","Pages"=>pages_id};
+        match fixture.kind.as_str() {
+            "metadata_xmp" | "metadata_both" => catalog.set("Metadata", dictionary! {"Type"=>"Metadata"}),
+            "attachment_tree" | "attachment_both" => catalog.set("Names", dictionary! {"EmbeddedFiles"=>dictionary! {"Names"=>Vec::<Object>::new()}}),
+            "action_open" => catalog.set("OpenAction", dictionary! {"S"=>"JavaScript"}),
+            "action_catalog_aa" => catalog.set("AA", dictionary! {"WC"=>dictionary! {"S"=>"JavaScript"}}),
+            "action_javascript" => catalog.set("Names", dictionary! {"JavaScript"=>dictionary! {"Names"=>Vec::<Object>::new()}}),
+            "layer_single" => catalog.set("OCProperties", dictionary! {"OCGs"=>Vec::<Object>::new()}),
+            "layer_group" => catalog.set("OCProperties", dictionary! {"D"=>dictionary! {"Order"=>Vec::<Object>::new()}}),
+            "form_empty" => catalog.set("AcroForm", dictionary! {"Fields"=>Vec::<Object>::new()}),
+            "form_field" => catalog.set("AcroForm", dictionary! {"Fields"=>vec![dictionary! {"T"=>Object::string_literal("secret")}.into()]}),
+            _ => {}
+        }
+        let catalog_id = doc.add_object(catalog);
+        doc.trailer.set("Root", catalog_id);
+        if matches!(fixture.kind.as_str(), "metadata_info" | "metadata_both") {
+            let info =
+                doc.add_object(dictionary! {"Author"=>Object::string_literal("Sensitive Name")});
+            doc.trailer.set("Info", info);
+        }
+        doc.compress();
+        let mut bytes = Vec::new();
+        doc.save_to(&mut bytes).unwrap();
+        bytes
+    }
+
+    fn committed_corpus_pdf(fixture: &CorpusFixture) -> Vec<u8> {
+        fs::read(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("../tests/fixtures/pdf-corpus")
+                .join(format!("{}.pdf", fixture.name)),
+        )
+        .unwrap_or_else(|error| panic!("missing committed fixture {}: {error}", fixture.name))
+    }
+
+    #[test]
+    #[ignore = "maintenance helper; generated PDFs are committed"]
+    fn regenerate_committed_corpus() {
+        let directory = Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/fixtures/pdf-corpus");
+        fs::create_dir_all(&directory).unwrap();
+        for fixture in corpus_manifest() {
+            fs::write(
+                directory.join(format!("{}.pdf", fixture.name)),
+                corpus_pdf(&fixture),
+            )
+            .unwrap();
+        }
+    }
 
     fn sample(path: &Path, hidden: bool, metadata: bool) {
         let mut doc = Document::with_version("1.5");
@@ -644,30 +809,88 @@ mod tests {
         ));
     }
     #[test]
-    fn detects_seeded_overlay_corpus() {
+    fn claim_input_limit_rejects_files_over_500_mb_before_reading() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("oversize.pdf");
+        let file = fs::File::create(&path).unwrap();
+        file.set_len(MAX_BYTES + 1).unwrap();
+        assert!(matches!(validate_input(&path), Err(PdfError::TooLarge)));
+    }
+    #[test]
+    fn claim_core_detection_corpus() {
+        let fixtures = corpus_manifest();
         let mut detected = 0;
-        for i in 0..20 {
-            let y = 100 + i * 20;
-            let ops = vec![
-                Operation::new("BT", vec![]),
-                Operation::new("Tf", vec![Object::Name(b"F1".to_vec()), 12.into()]),
-                Operation::new(
-                    "Tm",
-                    vec![1.into(), 0.into(), 0.into(), 1.into(), 72.into(), y.into()],
-                ),
-                Operation::new("Tj", vec![Object::string_literal("seeded private value")]),
-                Operation::new("ET", vec![]),
-                Operation::new("re", vec![68.into(), (y - 3).into(), 180.into(), 18.into()]),
-                Operation::new("f", vec![]),
-            ];
-            let scan = scan_operations(&ops, vec![]);
-            if scan.covered_count == 1 {
-                detected += 1;
+        let mut risky = 0;
+        let mut by_category: HashMap<String, (usize, usize)> = HashMap::new();
+        for fixture in &fixtures {
+            let report = inspect_bytes(
+                &format!("{}.pdf", fixture.name),
+                &committed_corpus_pdf(fixture),
+            )
+            .unwrap();
+            if fixture.expected == "pass" {
+                assert_eq!(report.verdict, "pass", "{} should be clean", fixture.name);
+                continue;
             }
+            risky += 1;
+            let found = report
+                .findings
+                .iter()
+                .any(|finding| finding.code == fixture.expected);
+            let entry = by_category.entry(fixture.expected.clone()).or_default();
+            entry.1 += 1;
+            if found {
+                detected += 1;
+                entry.0 += 1;
+            }
+            assert!(
+                found,
+                "{} did not report {}",
+                fixture.name, fixture.expected
+            );
         }
-        assert!(
-            detected >= 19,
-            "detected {detected}/20 seeded covered-text cases"
+        let rate = detected as f64 / risky as f64;
+        eprintln!(
+            "detection corpus: {detected}/{risky} ({:.1}%); {by_category:?}",
+            rate * 100.0
         );
+        assert!(
+            rate >= 0.95,
+            "detected {detected}/{risky} varied risky fixtures"
+        );
+    }
+
+    #[test]
+    fn claim_sanitized_copy_preserves_original_and_clears_structural_risks() {
+        for fixture in corpus_manifest()
+            .iter()
+            .filter(|fixture| fixture.expected != "pass")
+        {
+            let bytes = committed_corpus_pdf(fixture);
+            let before_hash = hash_bytes(&bytes);
+            let (report, clean_bytes) =
+                sanitize_bytes(&format!("{}.pdf", fixture.name), &bytes).unwrap();
+            assert_eq!(
+                hash_bytes(&bytes),
+                before_hash,
+                "{} input changed",
+                fixture.name
+            );
+            assert_ne!(
+                clean_bytes, bytes,
+                "{} did not create a separate copy",
+                fixture.name
+            );
+            assert_eq!(report.source_sha256, before_hash);
+            let clean = inspect_bytes("clean.pdf", &clean_bytes).unwrap();
+            assert_eq!(
+                clean.verdict, "pass",
+                "{} remained risky after sanitizing",
+                fixture.name
+            );
+            let proof = report.sanitized.as_ref().unwrap();
+            assert_eq!(proof.sha256, clean.source_sha256);
+            assert_eq!(proof.verification_verdict, "pass");
+        }
     }
 }

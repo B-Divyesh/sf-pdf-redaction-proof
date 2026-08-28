@@ -11,6 +11,10 @@ export function safeBasename(name: string): string {
 }
 
 export function reportJson(report: AuditReport): string {
-  const portable = { ...report, source_path: undefined };
+  const portable = {
+    ...report,
+    source_path: undefined,
+    sanitized: report.sanitized ? { ...report.sanitized, path: undefined } : undefined,
+  };
   return JSON.stringify(portable, null, 2);
 }
