@@ -1,0 +1,29 @@
+{
+  "name": "pdf-redaction-proof",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.app.config.ts",
+    "dev:site": "vite --config vite.site.config.ts",
+    "tauri": "tauri",
+    "build:app": "vite build --config vite.app.config.ts",
+    "build:site": "vite build --config vite.site.config.ts",
+    "build": "npm run build:app && npm run build:site",
+    "test": "vitest run && cargo test --manifest-path src-tauri/Cargo.toml && playwright test",
+    "check": "tsc --noEmit && cargo check --manifest-path src-tauri/Cargo.toml"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.8.0",
+    "@tauri-apps/plugin-dialog": "2.4.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.58.2",
+    "@types/node": "22.15.30",
+    "@tauri-apps/cli": "2.8.4",
+    "typescript": "5.9.2",
+    "vite": "7.3.6",
+    "vitest": "3.2.7"
+  }
+}

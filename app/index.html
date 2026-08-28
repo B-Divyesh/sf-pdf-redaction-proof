@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f1e8" />
+    <title>Redaction Proof — Local PDF verifier</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to audit</a>
+    <header class="app-header">
+      <a class="brand" href="https://pdf-redaction-proof.sociobot.in" aria-label="Redaction Proof home">
+        <span class="brand-mark" aria-hidden="true"><i></i></span>
+        <span>Redaction Proof</span>
+      </a>
+      <div class="privacy-chip"><span aria-hidden="true">●</span> Local only</div>
+    </header>
+    <main id="main" class="app-shell">
+      <section class="intro" aria-labelledby="app-title">
+        <p class="eyebrow">PDF STRUCTURE AUDIT / 0.1</p>
+        <h1 id="app-title">See what the black box didn’t remove.</h1>
+        <p class="lede">Inspect text layers, annotations, attachments, actions, and metadata. Your document never leaves this device.</p>
+      </section>
+
+      <section class="workbench" aria-label="PDF audit workbench">
+        <div id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-describedby="drop-help">
+          <div class="aperture-icon" aria-hidden="true"><span></span></div>
+          <div>
+            <h2 id="drop-label">Choose a PDF to inspect</h2>
+            <p id="drop-help">Drop a file here, or press Enter to browse. Maximum 500 MB.</p>
+          </div>
+          <button id="pick-file" class="button primary" type="button">Choose PDF</button>
+        </div>
+        <div id="offline-note" class="notice" hidden>
+          <strong>Offline is fine.</strong> Auditing and sanitizing happen entirely on this device. License checks resume when you reconnect.
+        </div>
+        <div id="error" class="notice danger" role="alert" hidden></div>
+        <div id="progress" class="progress-panel" aria-live="polite" hidden>
+          <div class="scan-glyph" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div><strong>Inspecting PDF structure…</strong><span id="progress-file"></span></div>
+        </div>
+        <section id="result" class="result" aria-live="polite" hidden></section>
+      </section>
+
+      <section class="trust-row" aria-label="Privacy assurances">
+        <div><b>01</b><span><strong>No upload</strong>PDF bytes stay local.</span></div>
+        <div><b>02</b><span><strong>Audit hash</strong>SHA-256 identifies the exact file.</span></div>
+        <div><b>03</b><span><strong>Honest verdict</strong>Uncertain findings remain visible.</span></div>
+      </section>
+
+      <section class="license-panel" aria-labelledby="license-title">
+        <div>
+          <p class="eyebrow">OPTIONAL BATCH UNLOCK</p>
+          <h2 id="license-title">Audit a folder’s worth in one run.</h2>
+          <p>Single-file inspection, sanitizing, and JSON proof stay free. Redaction Proof Pro adds multi-file selection for a one-time US$12 purchase.</p>
+        </div>
+        <div class="license-actions">
+          <a class="button secondary" href="https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout" target="_blank" rel="noreferrer">Buy Pro — $12 once</a>
+          <button id="restore-toggle" class="text-button" type="button" aria-expanded="false">Have a license?</button>
+          <form id="license-form" class="license-form" hidden>
+            <label for="license-token">License token</label>
+            <div><input id="license-token" autocomplete="off" spellcheck="false" /><button class="button small" type="submit">Verify</button></div>
+          </form>
+          <p id="license-status" class="microcopy" aria-live="polite">Free edition · one file at a time</p>
+        </div>
+      </section>
+    </main>
+    <footer class="app-footer"><span>No legal guarantee. Review every result.</span><span>Original generated imagery · no telemetry</span></footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
