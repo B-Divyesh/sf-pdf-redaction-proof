@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f1e8" />
+    <meta name="description" content="Inspect and sanitize redacted PDFs locally. Find hidden text, metadata, annotations, attachments, and actions before sharing." />
+    <title>Redaction Proof — Verify a PDF before you share it</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Redaction Proof home"><span class="brand-mark" aria-hidden="true"><i></i></span><span>Redaction Proof</span></a>
+      <nav aria-label="Main navigation"><a href="#checks">What it checks</a><a href="#pricing">Pricing</a><a href="https://github.com/B-Divyesh/sf-pdf-redaction-proof" target="_blank" rel="noreferrer">Source</a></nav>
+    </header>
+    <main id="main">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">LOCAL PDF FORENSICS</p>
+          <h1>A black box is not proof of redaction.</h1>
+          <p class="hero-lede">Inspect what a PDF still contains, sanitize risky structure, and keep a machine-readable proof — without uploading the document.</p>
+          <div class="download-group">
+            <a id="download-button" class="button primary" href="https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/latest">Download Redaction Proof</a>
+            <span id="download-note">Detecting your platform…</span>
+          </div>
+          <div class="platform-links" aria-label="Other downloads"><a data-platform="macos" href="#">macOS</a><a data-platform="windows" href="#">Windows</a><a data-platform="linux" href="#">Linux</a></div>
+          <p class="microcopy">Free single-file audits · Pro batch unlock US$12 once · Unsigned v1 installers</p>
+        </div>
+        <figure class="hero-art">
+          <picture>
+            <source media="(max-width:720px)" srcset="/assets/forensic-aperture-720.webp" type="image/webp" />
+            <img src="/assets/forensic-aperture.webp" width="1280" height="853" alt="Exploded paper layers reveal cyan geometry beneath a black redaction bar through a circular inspection aperture." fetchpriority="high" decoding="async" />
+          </picture>
+          <figcaption><span>VISIBLE PLANE</span><span>RECOVERABLE LAYER</span></figcaption>
+        </figure>
+      </section>
+
+      <section class="problem" aria-labelledby="problem-title">
+        <p class="section-number">01 / THE FAILURE MODE</p>
+        <div><h2 id="problem-title">Covered is not removed.</h2><p>Many redaction failures look perfect on screen. Underneath, the original text can still be copied, annotations peeled away, metadata read, or attachments opened. A visual check cannot prove structural removal.</p></div>
+        <div class="layer-demo" aria-label="Diagram: visible black overlay sits above recoverable text"><span class="cover"></span><span class="secret">RECOVERABLE TEXT LAYER</span><i></i></div>
+      </section>
+
+      <section id="checks" class="checks" aria-labelledby="checks-title">
+        <div class="section-head"><p class="section-number">02 / THE AUDIT</p><h2 id="checks-title">Five structures. One honest verdict.</h2><p>The app reads the PDF object graph locally and reports evidence by page. Uncertain cases stay marked for review.</p></div>
+        <ol class="check-list">
+          <li><b>01</b><div><h3>Covered & invisible text</h3><p>Finds text painting behind redaction annotations and opaque rectangles, plus invisible render mode.</p></div></li>
+          <li><b>02</b><div><h3>Metadata</h3><p>Flags document info and XMP packets that can reveal authors, dates, software, and workflow details.</p></div></li>
+          <li><b>03</b><div><h3>Annotations & forms</h3><p>Surfaces removable comments, unapplied redaction marks, and retained field values.</p></div></li>
+          <li><b>04</b><div><h3>Attachments & actions</h3><p>Detects embedded files, name trees, automatic actions, and active content.</p></div></li>
+          <li><b>05</b><div><h3>Audit identity</h3><p>Hashes the exact source and sanitized copy with SHA-256 in a portable JSON report.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="workflow" aria-labelledby="workflow-title">
+        <p class="section-number">03 / LOCAL WORKFLOW</p><h2 id="workflow-title">From uncertainty to a reviewable artifact.</h2>
+        <div class="workflow-grid"><article><span>DROP</span><h3>Choose the output PDF</h3><p>No account and no upload. The file is parsed on your computer with a 500 MB safety limit.</p></article><article><span>READ</span><h3>Review every finding</h3><p>See why each object matters, where it occurs, and whether the verdict is pass, review, or fail.</p></article><article><span>SEAL</span><h3>Sanitize and verify again</h3><p>Remove risky structures, write a separate copy, and generate a hash-linked JSON proof.</p></article></div>
+      </section>
+
+      <section id="pricing" class="pricing" aria-labelledby="pricing-title">
+        <div><p class="section-number">04 / PRICING</p><h2 id="pricing-title">One careful tool. One-time purchase.</h2><p>Use every safety-critical feature free on one PDF at a time. Pro is for teams clearing a folder’s worth of output.</p></div>
+        <div class="price-card"><span class="price">$12 <small>once</small></span><ul><li>Everything in the free edition</li><li>Multi-file selection and batch audit</li><li>License works across your devices</li></ul><a class="button primary" href="https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout">Buy Pro</a><p>Sociobot/Dodo is the merchant of record. Refunds revoke the license automatically.</p></div>
+      </section>
+
+      <section class="warning" aria-labelledby="warning-title"><div class="warning-mark" aria-hidden="true">!</div><div><h2 id="warning-title">Proof, with limits stated.</h2><p>Redaction Proof is a technical inspection, not legal advice or a guarantee. Unusual clipping, transformed text, and secrets baked into images still require visual review. The report keeps those limits attached to the result.</p></div></section>
+    </main>
+    <footer><div><a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i></span><span>Redaction Proof</span></a><p>Built for the moment before “Send”.</p></div><div><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/install.sh">install.sh</a><a href="/install.ps1">install.ps1</a></div><p class="disclosure">Original AI-generated hero illustration, created for this product. No telemetry.</p></footer>
+    <script type="module" src="/src/site.ts"></script>
+  </body>
+</html>
