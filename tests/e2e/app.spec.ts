@@ -13,6 +13,13 @@ test("desktop workbench empty state is accessible", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test("desktop workbench dark and reduced-motion modes are accessible", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.goto("http://127.0.0.1:1420");
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter(v => ["serious", "critical"].includes(v.impact || ""))).toEqual([]);
+});
+
 test("@claim:offline-sample loads the built-in audit without an external request", async ({ page }) => {
   const externalRequests: string[] = [];
   page.on("request", request => {

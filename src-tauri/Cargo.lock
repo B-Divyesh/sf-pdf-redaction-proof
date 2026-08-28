@@ -2935,7 +2935,7 @@ dependencies = [
 
 [[package]]
 name = "redaction-proof"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "chrono",
  "hex",

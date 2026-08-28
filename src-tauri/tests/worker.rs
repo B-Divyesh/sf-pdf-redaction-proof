@@ -29,7 +29,11 @@ fn run_worker(command: &str, fixture: &str) -> (Value, Vec<u8>) {
 #[test]
 fn claim_local_worker_parses_piped_bytes_inside_the_os_sandbox() {
     let (header, trailing) = run_worker("inspect", "hidden-render-mode.pdf");
-    assert!(header["error"].is_null());
+    assert!(
+        header["error"].is_null(),
+        "worker error: {}",
+        header["error"]
+    );
     assert_eq!(header["report"]["source_name"], "hidden-render-mode.pdf");
     assert_eq!(header["report"]["source_path"], "hidden-render-mode.pdf");
     assert_eq!(header["report"]["verdict"], "fail");
@@ -39,7 +43,11 @@ fn claim_local_worker_parses_piped_bytes_inside_the_os_sandbox() {
 #[test]
 fn worker_returns_a_rechecked_sanitized_pdf_over_the_output_pipe() {
     let (header, trailing) = run_worker("sanitize", "info-and-xmp.pdf");
-    assert!(header["error"].is_null());
+    assert!(
+        header["error"].is_null(),
+        "worker error: {}",
+        header["error"]
+    );
     assert_eq!(
         header["report"]["sanitized"]["verification_verdict"],
         "pass"

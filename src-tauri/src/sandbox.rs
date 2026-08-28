@@ -215,11 +215,11 @@ mod platform {
     use windows_sys::Win32::{
         Foundation::CloseHandle,
         Security::{
-            AllocateAndInitializeSid, CreateRestrictedToken, FreeSid, DISABLE_MAX_PRIVILEGE,
-            SID_AND_ATTRIBUTES, SID_IDENTIFIER_AUTHORITY, TOKEN_DUPLICATE, TOKEN_IMPERSONATE,
-            TOKEN_QUERY,
+            AllocateAndInitializeSid, CreateRestrictedToken, FreeSid, ImpersonateLoggedOnUser,
+            DISABLE_MAX_PRIVILEGE, SID_AND_ATTRIBUTES, SID_IDENTIFIER_AUTHORITY, TOKEN_DUPLICATE,
+            TOKEN_IMPERSONATE, TOKEN_QUERY,
         },
-        System::Threading::{GetCurrentProcess, OpenProcessToken, SetThreadToken},
+        System::Threading::{GetCurrentProcess, OpenProcessToken},
     };
 
     pub fn enter() -> io::Result<()> {
@@ -262,7 +262,10 @@ mod platform {
             if created == 0 {
                 return Err(io::Error::last_os_error());
             }
-            let installed = SetThreadToken(std::ptr::null(), restricted_token);
+            // CreateRestrictedToken returns a primary token. This API accepts
+            // either a primary or impersonation token and installs the
+            // restricted identity on the current worker thread.
+            let installed = ImpersonateLoggedOnUser(restricted_token);
             CloseHandle(restricted_token);
             if installed == 0 {
                 return Err(io::Error::last_os_error());
@@ -291,16 +294,25 @@ pub fn enter() -> io::Result<()> {
 mod tests {
     #[test]
     fn claim_document_privacy_sandbox_denies_filesystem_and_network_syscalls() {
+        let bytes = std::fs::read(
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("../tests/fixtures/pdf-corpus/hidden-render-mode.pdf"),
+        )
+        .unwrap();
         let child = unsafe { libc::fork() };
         assert!(child >= 0);
         if child == 0 {
             if super::enter().is_err() {
                 unsafe { libc::_exit(10) };
             }
+            let parsed = crate::pdf::inspect_bytes("hidden-render-mode.pdf", &bytes)
+                .map(|report| report.verdict == "fail")
+                .unwrap_or(false);
             let path = b"/etc/passwd\0";
             let fd = unsafe { libc::open(path.as_ptr().cast(), libc::O_RDONLY) };
             let socket = unsafe { libc::socket(libc::AF_INET, libc::SOCK_STREAM, 0) };
-            let denied = fd == -1
+            let denied = parsed
+                && fd == -1
                 && socket == -1
                 && std::io::Error::last_os_error().raw_os_error() == Some(libc::EPERM);
             unsafe { libc::_exit(if denied { 0 } else { 11 }) };
