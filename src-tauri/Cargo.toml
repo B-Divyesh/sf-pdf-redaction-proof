@@ -1,6 +1,6 @@
 [package]
 name = "redaction-proof"
-version = "0.1.2"
+version = "0.1.3"
 description = "Local PDF structural redaction verifier"
 authors = ["Param Factory"]
 edition = "2021"

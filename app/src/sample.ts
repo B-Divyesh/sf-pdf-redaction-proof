@@ -3,7 +3,7 @@ import type { AuditReport } from "./types";
 export const sampleAudit: AuditReport = {
   schema_version: "1.0",
   generated_at: "2026-08-28T09:00:00Z",
-  app_version: "0.1.2",
+  app_version: "0.1.3",
   source_name: "sample-board-minutes.pdf",
   source_path: "demo:sample-board-minutes.pdf",
   source_sha256: "6b21f0874aa4f56c369162dd61ec95d5ac6716c424819ab533f7b973f017d904",

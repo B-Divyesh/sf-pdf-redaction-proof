@@ -1,4 +1,4 @@
-# Repair handoff — Redaction Proof 0.1.2
+# Repair handoff — Redaction Proof 0.1.3
 
 **Work order:** `pdf-redaction-proof-repair-2`
 
@@ -86,7 +86,7 @@
 - Local and live `index.html` SHA-256 both equal
   `d0882796b9f21f4d5c121fbc9edc2b0a27a4cece16caae897165b5b2717acacb`.
 - Live CSP, HSTS, `nosniff`, referrer, and permissions headers are present.
-- Tag `v0.1.2` is the release tag for the repaired unsigned macOS, Windows, and
+- Tag `v0.1.3` is the release tag for the repaired unsigned macOS, Windows, and
   Linux artifacts. Its workflow and checksum evidence are recorded below once
   complete.
 
