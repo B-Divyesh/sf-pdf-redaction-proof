@@ -37,6 +37,13 @@
   Accessibility 100, Best Practices 100, SEO 100; LCP 1.2 s, CLS 0,
   total blocking time 0 ms, and no console errors.
 - `npm audit`: 0 vulnerabilities.
+- GitHub Actions run
+  [`33159767413`](https://github.com/B-Divyesh/sf-pdf-redaction-proof/actions/runs/33159767413)
+  passed for universal macOS, Windows x64, and Linux x64. Release
+  [`v0.1.0`](https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/tag/v0.1.0)
+  contains DMG, MSI, AppImage, DEB, RPM, `SHA256SUMS`, and valid `latest.json`
+  assets. A clean public download of `Redaction.Proof_0.1.0_amd64.deb` was
+  verified successfully against the published checksum.
 
 ## Known limits
 
@@ -57,16 +64,13 @@
 1. Register the `pdf-redaction-proof` product, US$12 one-time price, and return
    URL with the Sociobot billing API. The source intentionally contains no
    hard-coded provider product ID.
-2. Push/tag `v0.1.0` (or dispatch the workflow), wait for all three build jobs,
-   and verify one asset against `SHA256SUMS`. The website falls back to the
-   GitHub releases page until `latest.json` exists.
-3. Configure deployment with `npm run build:site` and `dist/site`.
-4. Optional signing/notarization requires operator-owned credentials. Use
+2. Configure deployment with `npm run build:site` and `dist/site`.
+3. Optional signing/notarization requires operator-owned credentials. Use
    secrets named `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`,
    `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID`,
    `WINDOWS_CERT_PFX`, and `WINDOWS_CERT_PASSWORD`, then wire them into the
    release workflow; the current workflow deliberately does not reference
    absent secrets and produces unsigned artifacts.
-5. For a stronger hostile-file boundary in v0.2, add per-platform syscall and
+4. For a stronger hostile-file boundary in v0.2, add per-platform syscall and
    filesystem policy around the existing worker, plus transformed text, Form
    XObject, clipping, and image/OCR fixtures.
