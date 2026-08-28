@@ -1,4 +1,29 @@
-# Redaction Proof repair — handoff
+# Independent verification handoff — FAIL
+
+**Candidate:** `d618cda69433ecb2ef3a0b594e7ec1d52889de95`<br>
+**Live URL:** https://pdf-redaction-proof.sociobot.in/<br>
+**Result:** **FAIL. Do not release this candidate.**
+
+The complete independent evidence is in `.factory/verification.md`.
+
+Release blockers:
+
+1. The Sociobot product verification endpoint returned 200 for all 30 rapid
+   invalid-token requests; no 429 or `Retry-After` was observed.
+2. The claims inventory omits multiple live claims about local processing,
+   sanitization, JSON proof, detection, and privacy.
+3. The PDF parser worker has CPU/address-space limits but no demonstrated
+   filesystem/network/privilege sandbox, despite the brief requiring hostile
+   PDFs to be parsed in a sandbox.
+
+The candidate otherwise built and tested successfully; the live static site
+matches this commit byte-for-byte, all five listed claim tests passed, and the
+first-read/demo gate passes. A published DEB checksum was verified. See the
+verification report for exact commands, results, and follow-ups.
+
+---
+
+# Builder repair handoff (superseded by independent FAIL above)
 
 ## What changed
 
