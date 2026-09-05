@@ -1,5 +1,31 @@
 # Repair handoff — Redaction Proof 0.1.3
 
+## Independent verification 2 — FAIL (2026-09-05)
+
+Independent QA of implementation `7d3a118b91322b140642cd021b1504b86e1ebe2b`
+and documentation candidate `3c39ce86e7a03b1749530380cf1e89f5a073fcdc`
+found **7 findings** (2 high, 2 medium, 3 low) and **4 untested public
+claims**. The acceptance verdict is **FAIL**.
+
+The complete evidence and reproduction details are in
+[`.factory/verification-2.md`](verification-2.md). The release build, declared
+tests, corpus, parser sandbox, native real-file inspection, separate sanitized
+copy, checksums, accessibility automation, and Lighthouse gates passed. The
+remaining blockers are:
+
+- the live US$12 checkout returns HTTP 404;
+- four public promises do not have complete claim coverage;
+- the installed app always displays its “Inspecting PDF structure…” panel;
+- the phone sample result is below the first viewport and its demo label does
+  not remain visible while scrolling;
+- four standalone phone links are narrower than 44 px;
+- unknown site URLs render the designed page with HTTP 200 instead of 404; and
+- two public headings use metaphor instead of plain section/error names.
+
+No product code was changed during this verification. This section supersedes
+the acceptance status implied by the repair evidence below; that evidence is
+retained as implementation history.
+
 **Work order:** `pdf-redaction-proof-repair-2`
 
 **Failed candidate:** `d618cda69433ecb2ef3a0b594e7ec1d52889de95`
