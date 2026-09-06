@@ -808,6 +808,7 @@ mod tests {
             Err(PdfError::NotPdf)
         ));
     }
+    /// @claim:input-limit
     #[test]
     fn claim_input_limit_rejects_files_over_500_mb_before_reading() {
         let dir = tempdir().unwrap();
@@ -816,6 +817,7 @@ mod tests {
         file.set_len(MAX_BYTES + 1).unwrap();
         assert!(matches!(validate_input(&path), Err(PdfError::TooLarge)));
     }
+    /// @claim:detection-corpus
     #[test]
     fn claim_core_detection_corpus() {
         let fixtures = corpus_manifest();
@@ -860,6 +862,7 @@ mod tests {
         );
     }
 
+    /// @claim:sanitized-copy
     #[test]
     fn claim_sanitized_copy_preserves_original_and_clears_structural_risks() {
         for fixture in corpus_manifest()

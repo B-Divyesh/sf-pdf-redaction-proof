@@ -57,6 +57,7 @@ fn worker_returns_a_rechecked_sanitized_pdf_over_the_output_pipe() {
 }
 
 #[cfg(target_os = "linux")]
+/// @claim:linux-worker-resource-limits
 #[test]
 fn claim_linux_worker_limits_are_applied() {
     let (header, trailing) = run_worker("limits", "plain-page.pdf");

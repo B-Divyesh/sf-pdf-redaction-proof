@@ -292,6 +292,7 @@ pub fn enter() -> io::Result<()> {
 
 #[cfg(all(test, target_os = "linux"))]
 mod tests {
+    /// @claim:local-processing
     #[test]
     fn claim_document_privacy_sandbox_denies_filesystem_and_network_syscalls() {
         let child = unsafe { libc::fork() };
