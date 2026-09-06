@@ -5,14 +5,14 @@ desktop app finds covered text, invisible text, document details, comments,
 forms, layers, attachments, and automatic actions. It writes a separate clean
 PDF and a JSON proof tied to both files by SHA-256.
 
-The app does not upload PDFs or run PDF JavaScript. It does not claim legal
+PDF parsing happens in a local sandboxed worker. It does not claim legal
 certainty. Every report includes the limits of the check.
 
 ## Product editions
 
 Single-file checking, cleaning, and JSON export are free. A US$12 one-time Pro
 license adds multi-file selection and a batch summary. The Sociobot billing API
-handles checkout and license checks.
+handles checkout and license checks once product registration is complete.
 
 ## Try the sample
 
@@ -94,6 +94,6 @@ visible in the app and report.
 
 ## Privacy and source
 
-There is no telemetry, third-party runtime script, CDN font, or PDF upload.
-Only a Pro license token and dated verification verdict are stored locally.
+The site loads its own files and public GitHub release metadata. The app stores
+only a Pro license token and dated verification verdict locally.
 See `/privacy/` and `/terms/` on the site. The source is MIT licensed.

@@ -4,7 +4,21 @@
     "claim": "The site selects a current installer for macOS, Windows, or Linux.",
     "where": "landing download controls and README",
     "test": "npx playwright test --grep @claim:release-downloads --workers=1",
-    "sandbox": "mocked GitHub latest-release API with one real-shaped asset per platform; assert selected URL and one-hour cache"
+    "sandbox": "mocked GitHub latest-release API with one real-shaped asset per platform; assert the selected URL"
+  },
+  {
+    "id": "release-cache-period",
+    "claim": "Successful release metadata stays in the browser cache for one hour.",
+    "where": "privacy policy and README",
+    "test": "npx playwright test --grep @claim:release-cache-period --workers=1",
+    "sandbox": "seed a cache record just under the one-hour limit and assert no request; set it exactly at the limit and assert a refreshed GitHub API request"
+  },
+  {
+    "id": "site-network-privacy",
+    "claim": "The site loads only its own files and public GitHub release metadata, not tracker, analytics, font, or runtime-script services.",
+    "where": "privacy policy, footer, and README",
+    "test": "npx playwright test --grep @claim:site-network-privacy --workers=1",
+    "sandbox": "record every request during a fresh landing-page visit with a mocked release response; assert that the only origins are the product preview and api.github.com"
   },
   {
     "id": "demo-isolation",
@@ -61,6 +75,13 @@
     "where": "desktop picker and README",
     "test": "cargo test --manifest-path src-tauri/Cargo.toml claim_input_limit -- --nocapture",
     "sandbox": "create a sparse 500 MB plus one byte PDF path; assert TooLarge before file contents are read"
+  },
+  {
+    "id": "worker-resource-limits",
+    "claim": "On Unix, the PDF worker has a 60-second CPU limit and a 1.5 GB address-space limit.",
+    "where": "README",
+    "test": "cargo test --manifest-path src-tauri/Cargo.toml claim_unix_worker_limits_are_applied -- --nocapture",
+    "sandbox": "start the production worker command in a fresh process, read its active rlimits after its sandbox starts, and assert the exact CPU and address-space values"
   },
   {
     "id": "offline-sample",

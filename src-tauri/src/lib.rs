@@ -14,6 +14,63 @@ struct WorkerResponse {
     report: Option<AuditReport>,
     error: Option<String>,
     sanitized_bytes: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    limits: Option<WorkerLimits>,
+}
+
+#[derive(Deserialize, Serialize)]
+struct WorkerLimits {
+    address_space_bytes: u64,
+    cpu_seconds: u64,
+}
+
+#[cfg(unix)]
+const WORKER_ADDRESS_SPACE_BYTES: u64 = 1_610_612_736;
+#[cfg(unix)]
+const WORKER_CPU_SECONDS: u64 = 60;
+
+#[cfg(unix)]
+fn apply_worker_limits() -> std::io::Result<()> {
+    let memory = libc::rlimit {
+        rlim_cur: WORKER_ADDRESS_SPACE_BYTES as libc::rlim_t,
+        rlim_max: WORKER_ADDRESS_SPACE_BYTES as libc::rlim_t,
+    };
+    let cpu = libc::rlimit {
+        rlim_cur: WORKER_CPU_SECONDS as libc::rlim_t,
+        rlim_max: WORKER_CPU_SECONDS as libc::rlim_t,
+    };
+    if unsafe { libc::setrlimit(libc::RLIMIT_AS, &memory) } != 0
+        || unsafe { libc::setrlimit(libc::RLIMIT_CPU, &cpu) } != 0
+    {
+        return Err(std::io::Error::last_os_error());
+    }
+    Ok(())
+}
+
+#[cfg(not(unix))]
+fn apply_worker_limits() -> std::io::Result<()> {
+    Ok(())
+}
+
+#[cfg(unix)]
+fn active_worker_limits() -> std::io::Result<WorkerLimits> {
+    let mut memory = libc::rlimit {
+        rlim_cur: 0,
+        rlim_max: 0,
+    };
+    let mut cpu = libc::rlimit {
+        rlim_cur: 0,
+        rlim_max: 0,
+    };
+    if unsafe { libc::getrlimit(libc::RLIMIT_AS, &mut memory) } != 0
+        || unsafe { libc::getrlimit(libc::RLIMIT_CPU, &mut cpu) } != 0
+    {
+        return Err(std::io::Error::last_os_error());
+    }
+    Ok(WorkerLimits {
+        address_space_bytes: memory.rlim_cur as u64,
+        cpu_seconds: cpu.rlim_cur as u64,
+    })
 }
 
 fn worker(command: &str, path: &str) -> Result<AuditReport, String> {
@@ -35,22 +92,7 @@ fn worker(command: &str, path: &str) -> Result<AuditReport, String> {
     {
         use std::os::unix::process::CommandExt;
         unsafe {
-            process.pre_exec(|| {
-                let memory = libc::rlimit {
-                    rlim_cur: 1_610_612_736,
-                    rlim_max: 1_610_612_736,
-                };
-                let cpu = libc::rlimit {
-                    rlim_cur: 60,
-                    rlim_max: 60,
-                };
-                if libc::setrlimit(libc::RLIMIT_AS, &memory) != 0
-                    || libc::setrlimit(libc::RLIMIT_CPU, &cpu) != 0
-                {
-                    return Err(std::io::Error::last_os_error());
-                }
-                Ok(())
-            });
+            process.pre_exec(apply_worker_limits);
         }
     }
     let mut child = process
@@ -117,12 +159,57 @@ fn write_report(path: String, contents: String) -> Result<(), String> {
 pub fn run() {
     let args: Vec<String> = std::env::args().collect();
     if args.get(1).map(String::as_str) == Some("--redaction-proof-worker") {
+        let limits_result = apply_worker_limits();
         let mut bytes = Vec::new();
         let read_result = std::io::stdin()
             .take(500 * 1024 * 1024 + 1)
             .read_to_end(&mut bytes);
         let sandbox_result = sandbox::enter();
+        #[cfg(unix)]
+        let worker_limits = active_worker_limits();
+        #[cfg(unix)]
+        if args.get(2).map(String::as_str) == Some("limits") {
+            let response = match (limits_result, sandbox_result, worker_limits) {
+                (Ok(()), Ok(()), Ok(limits)) => WorkerResponse {
+                    report: None,
+                    error: None,
+                    sanitized_bytes: 0,
+                    limits: Some(limits),
+                },
+                (Err(error), _, _) => WorkerResponse {
+                    report: None,
+                    error: Some(format!(
+                        "The PDF worker resource limits could not start: {error}"
+                    )),
+                    sanitized_bytes: 0,
+                    limits: None,
+                },
+                (_, Err(error), _) => WorkerResponse {
+                    report: None,
+                    error: Some(format!(
+                        "The operating-system PDF sandbox could not start: {error}"
+                    )),
+                    sanitized_bytes: 0,
+                    limits: None,
+                },
+                (_, _, Err(error)) => WorkerResponse {
+                    report: None,
+                    error: Some(format!("The PDF worker limits could not be read: {error}")),
+                    sanitized_bytes: 0,
+                    limits: None,
+                },
+            };
+            let header = serde_json::to_vec(&response).unwrap();
+            let mut stdout = std::io::stdout().lock();
+            let _ = stdout.write_all(&(header.len() as u64).to_be_bytes());
+            let _ = stdout.write_all(&header);
+            return;
+        }
         let result = match (args.get(2).map(String::as_str), args.get(3)) {
+            _ if limits_result.is_err() => Err(format!(
+                "The PDF worker resource limits could not start: {}",
+                limits_result.unwrap_err()
+            )),
             _ if read_result.is_err() => Err("The worker could not read the PDF bytes.".into()),
             _ if bytes.len() > 500 * 1024 * 1024 => {
                 Err("This PDF is larger than the 500 MB safety limit.".into())
@@ -145,6 +232,7 @@ pub fn run() {
                     report: Some(report),
                     error: None,
                     sanitized_bytes: sanitized.len(),
+                    limits: None,
                 },
                 sanitized,
             ),
@@ -153,6 +241,7 @@ pub fn run() {
                     report: None,
                     error: Some(error.to_string()),
                     sanitized_bytes: 0,
+                    limits: None,
                 },
                 Vec::new(),
             ),

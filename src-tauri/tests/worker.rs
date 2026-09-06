@@ -55,3 +55,17 @@ fn worker_returns_a_rechecked_sanitized_pdf_over_the_output_pipe() {
     assert_eq!(header["sanitized_bytes"], trailing.len());
     assert!(trailing.starts_with(b"%PDF-"));
 }
+
+#[cfg(unix)]
+#[test]
+fn claim_unix_worker_limits_are_applied() {
+    let (header, trailing) = run_worker("limits", "plain-page.pdf");
+    assert!(
+        header["error"].is_null(),
+        "worker error: {}",
+        header["error"]
+    );
+    assert_eq!(header["limits"]["cpu_seconds"], 60);
+    assert_eq!(header["limits"]["address_space_bytes"], 1_610_612_736u64);
+    assert!(trailing.is_empty());
+}

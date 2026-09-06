@@ -8,9 +8,18 @@ test("desktop workbench empty state is accessible", async ({ page }) => {
   await expect(page).toHaveTitle(/Redaction Proof/);
   await expect(page.locator("main h1")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Choose PDF", exact: true })).toBeVisible();
+  await expect(page.locator("#progress")).toBeHidden();
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter(v => ["serious", "critical"].includes(v.impact || ""))).toEqual([]);
   expect(errors).toEqual([]);
+});
+
+test("desktop workbench only shows scan progress during a real scan", async ({ page }) => {
+  await page.goto("http://127.0.0.1:1420");
+  await expect(page.locator("#progress")).toBeHidden();
+  await page.getByRole("button", { name: "Load sample project" }).click();
+  await expect(page.getByRole("heading", { name: "Recoverable content found" })).toBeVisible();
+  await expect(page.locator("#progress")).toBeHidden();
 });
 
 test("desktop workbench dark and reduced-motion modes are accessible", async ({ page }) => {

@@ -60,6 +60,38 @@ test("@claim:release-downloads resolves installers through the GitHub API and ca
   expect(apiCalls).toBe(1);
 });
 
+test("@claim:release-cache-period uses a cached release for one hour and refreshes at expiry", async ({ page }) => {
+  let apiCalls = 0;
+  await page.route(apiUrl, route => {
+    apiCalls += 1;
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(release) });
+  });
+  await page.goto("/");
+  await page.evaluate(metadata => {
+    localStorage.setItem("pdf-redaction-proof:release-metadata:v1", JSON.stringify({
+      cachedAt: Date.now() - 3_590_000,
+      metadata,
+    }));
+  }, {
+    version: "cached",
+    releaseUrl: release.html_url,
+    platforms: { macos: release.assets[0], windows: release.assets[1], linux: release.assets[2] },
+  });
+  apiCalls = 0;
+  await page.reload();
+  await expect(page.locator("#download-note")).toHaveText("Version cached · Checksums published");
+  expect(apiCalls).toBe(0);
+  await page.evaluate(() => {
+    const key = "pdf-redaction-proof:release-metadata:v1";
+    const cached = JSON.parse(localStorage.getItem(key) || "{}");
+    cached.cachedAt = Date.now() - 3_600_000;
+    localStorage.setItem(key, JSON.stringify(cached));
+  });
+  await page.reload();
+  await expect(page.locator("#download-note")).toHaveText("Version 0.1.0 · Checksums published");
+  expect(apiCalls).toBe(1);
+});
+
 test("fresh cached metadata keeps downloads available when the API is offline", async ({ page }) => {
   await page.addInitScript(({ key, metadata }) => {
     localStorage.setItem(key, JSON.stringify({ cachedAt: Date.now(), metadata }));
@@ -111,6 +143,15 @@ test("@claim:sample-findings shows covered text and author metadata", async ({ p
   await expect(page.locator("#sample-audit")).toContainText("Two hidden items");
 });
 
+test("@claim:site-network-privacy loads no tracker, font CDN, or third-party runtime service", async ({ page }) => {
+  const origins = new Set<string>();
+  page.on("request", request => origins.add(new URL(request.url()).origin));
+  await mockRelease(page);
+  await page.goto("/");
+  await expect(page.locator("#download-note")).toHaveText("Version 0.1.0 · Checksums published");
+  expect([...origins].sort()).toEqual(["http://127.0.0.1:4173", "https://api.github.com"]);
+});
+
 test("@claim:single-file-price states the free limit and exact one-time price", async ({ page }) => {
   await mockRelease(page);
   await page.goto("/");
@@ -131,6 +172,37 @@ test("home wordmark has a 44px minimum pointer target", async ({ page }) => {
   expect(box?.height).toBeGreaterThanOrEqual(44);
 });
 
+test("phone demo shows the sample immediately and keeps its label while scrolling", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "This layout check uses the phone viewport.");
+  await mockRelease(page);
+  await page.goto("/");
+  await page.getByRole("link", { name: "Try it with sample data" }).click();
+  await expect(page).toHaveURL(/\?demo=1$/);
+  const sample = page.locator("#sample-audit");
+  await expect(sample).toContainText("Recoverable content found");
+  const sampleBox = await sample.boundingBox();
+  const viewport = page.viewportSize();
+  expect(sampleBox?.y).toBeLessThan(viewport!.height);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(page.getByText("Demo — sample data, nothing is saved")).toBeInViewport();
+});
+
+test("phone navigation, platform, and footer links have 44px touch targets", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "This layout check uses the phone viewport.");
+  await mockRelease(page);
+  await page.goto("/");
+  for (const link of [
+    page.locator(".site-header nav a").first(),
+    page.locator(".platform-links a[data-platform=linux]"),
+    page.locator("footer a[href='/?demo=1']"),
+    page.locator("footer a[href='/terms/']"),
+  ]) {
+    const box = await link.boundingBox();
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+  }
+});
+
 test("keyboard users can skip to the main content", async ({ page }) => {
   await mockRelease(page);
   await page.goto("/");
@@ -143,11 +215,11 @@ test("keyboard users can skip to the main content", async ({ page }) => {
 test("policy and missing pages have their own titles and one heading", async ({ page }) => {
   await page.goto("/privacy/");
   await expect(page).toHaveTitle("Privacy — Redaction Proof");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy, without fine print.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy policy");
   await page.goto("/terms/");
   await expect(page).toHaveTitle("Terms — Redaction Proof");
   await expect(page.locator("main h1")).toHaveCount(1);
   await page.goto("/404/");
   await expect(page).toHaveTitle("Page not found — Redaction Proof");
-  await expect(page.locator("main h1")).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Page not found.");
 });

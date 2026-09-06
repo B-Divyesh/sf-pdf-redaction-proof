@@ -1,6 +1,6 @@
 # Landing copy audit
 
-Audited 2026-08-28. Counts treat hyphenated terms and file names as one word.
+Audited 2026-09-06. Counts treat hyphenated terms and file names as one word.
 No sentence exceeds 22 words. No banned marketing term appears.
 
 | Words | Sentence |
@@ -21,7 +21,7 @@ No sentence exceeds 22 words. No banned marketing term appears.
 | 6 | The original file stays unchanged. |
 | 7 | The app shows the structure and page. |
 | 7 | The JSON report identifies both files. |
-| 5 | Look past the black box. |
+| 4 | What the check finds. |
 | 6 | Redaction Proof reads the PDF structure. |
 | 10 | It does not judge the page only by appearance. |
 | 9 | Find text behind redaction marks and solid rectangles. |

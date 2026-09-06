@@ -1,15 +1,4 @@
 {
-  "navigationFallback": {
-    "rewrite": "/404/index.html",
-    "exclude": [
-      "/assets/*",
-      "/install.sh",
-      "/install.ps1",
-      "/robots.txt",
-      "/sitemap.xml",
-      "/*.{css,js,png,jpg,svg,webp,ico,json,txt,xml,wasm}"
-    ]
-  },
   "responseOverrides": {
     "404": {
       "rewrite": "/404/index.html",
