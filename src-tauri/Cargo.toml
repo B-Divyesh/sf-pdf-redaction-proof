@@ -10,6 +10,12 @@ license = "MIT"
 name = "redaction_proof_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[profile.dev]
+# Keep the documented local test/build commands inside a small worker disk.
+# Release artifacts use Cargo's separate release profile in GitHub Actions.
+debug = 0
+incremental = false
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
