@@ -39,7 +39,7 @@
     "claim": "Single-file checking, cleaning, and JSON export are free; Pro batch work is a US$12 one-time offer and remains unavailable until checkout registration is ready.",
     "where": "landing facts and pricing, app license panel, README",
     "test": "npx playwright test --grep @claim:single-file-price --workers=1",
-    "sandbox": "fresh site and app contexts with a mocked unregistered billing endpoint; assert free features, exact price, batch scope, and that clicking Buy Pro stays on-page with an honest unavailable state"
+    "sandbox": "fresh site and app contexts; assert free features, exact price, batch scope, and an explicitly disabled purchase control with the billing-registration status"
   },
   {
     "id": "local-processing",

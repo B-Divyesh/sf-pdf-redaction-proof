@@ -94,7 +94,6 @@ visible in the app and report.
 
 ## Privacy and source
 
-The site loads its own files and public GitHub release metadata. Choosing Buy
-Pro checks the Sociobot checkout registration without sending PDF data. The app
-stores only a Pro license token and dated verification verdict locally.
+The site loads its own files and public GitHub release metadata. The app stores
+only a Pro license token and dated verification verdict locally.
 See `/privacy/` and `/terms/` on the site. The source is MIT licensed.

@@ -42,6 +42,7 @@ No sentence exceeds 22 words. No banned marketing term appears.
 | 14 | The free edition checks, cleans, and exports one PDF at a time. |
 | 5 | Pro adds batch work. |
 | 5 | Pro checkout needs billing registration. |
+| 7 | Batch work is not available yet. |
 | 9 | Sociobot/Dodo handles payment and refunds when checkout is ready. |
 
 ## Terminology

@@ -3,12 +3,10 @@ import "./touch.css";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
-import { openUrl } from "@tauri-apps/plugin-opener";
 import type { AuditReport, Finding } from "./types";
 import { cachedUnlock, captureReturnedLicense, LicenseRateLimitError, storedToken, verifyLicense } from "./license";
 import { reportJson, safeBasename, verdictCopy } from "./report";
 import { sampleAudit } from "./sample";
-import { CHECKOUT_URL, checkoutIsAvailable } from "../../site/src/checkout";
 
 const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const dropZone = el<HTMLDivElement>("drop-zone");
@@ -134,7 +132,11 @@ async function initLicense() {
   const status = el("license-status");
   const update = (valid: boolean) => {
     proUnlocked = valid;
-    status.textContent = valid ? "Pro active · batch selection enabled" : storedToken() ? "License no longer active · free edition available" : "Free edition · one file at a time";
+    status.textContent = valid
+      ? "Pro active · batch selection enabled"
+      : storedToken()
+        ? "License no longer active · free edition available"
+        : "Pro checkout needs billing registration. Batch work is not available yet.";
   };
   update(cachedUnlock());
   if (token) verifyLicense(token).then(update).catch(() => { if (!navigator.onLine) status.textContent = "Offline · using last verified license state"; });
@@ -164,26 +166,6 @@ async function initLicense() {
 function init() {
   el("pick-file").addEventListener("click", event => { event.stopPropagation(); chooseFiles(); });
   el("load-sample").addEventListener("click", event => { event.stopPropagation(); renderReport(sampleAudit, true); });
-  const buyButton = el<HTMLButtonElement>("buy-pro");
-  buyButton.addEventListener("click", async () => {
-    const status = el("license-status");
-    buyButton.disabled = true;
-    buyButton.textContent = "Checking checkout…";
-    try {
-      if (!await checkoutIsAvailable()) {
-        status.textContent = "Pro purchase is being registered. Batch work is not available yet.";
-        return;
-      }
-      status.textContent = "Opening hosted checkout…";
-      if ("__TAURI_INTERNALS__" in window) await openUrl(CHECKOUT_URL);
-      else location.assign(CHECKOUT_URL);
-    } catch {
-      status.textContent = "We could not confirm checkout. Try again when you are online.";
-    } finally {
-      buyButton.disabled = false;
-      if (location.href !== CHECKOUT_URL) buyButton.textContent = "Buy Pro — $12 once";
-    }
-  });
   dropZone.addEventListener("click", chooseFiles);
   if ("__TAURI_INTERNALS__" in window) {
     getCurrentWebview().onDragDropEvent(event => {

@@ -1,7 +1,6 @@
 import "./site.css";
 import "./contrast.css";
 import "./purchase.css";
-import { CHECKOUT_URL, checkoutIsAvailable } from "./checkout";
 
 export type Platform = "macos" | "windows" | "linux";
 
@@ -157,30 +156,6 @@ function capturePurchase() {
   });
 }
 
-function initCheckout() {
-  const button = document.querySelector<HTMLButtonElement>("#buy-pro");
-  const status = document.querySelector<HTMLElement>("#checkout-status");
-  if (!button || !status) return;
-  button.addEventListener("click", async () => {
-    button.disabled = true;
-    button.textContent = "Checking checkout…";
-    status.textContent = "";
-    try {
-      if (await checkoutIsAvailable()) {
-        status.textContent = "Opening hosted checkout…";
-        location.assign(CHECKOUT_URL);
-        return;
-      }
-      status.textContent = "Pro purchase is being registered. Batch work is not available yet.";
-    } catch {
-      status.textContent = "We could not confirm checkout. Try again when you are online.";
-    } finally {
-      button.disabled = false;
-      if (location.href !== CHECKOUT_URL) button.textContent = "Buy Pro for $12";
-    }
-  });
-}
-
 function enterDemo() {
   const url = new URL(location.href);
   if (url.searchParams.get("demo") !== "1") return;
@@ -208,6 +183,5 @@ function enterDemo() {
 if (typeof document !== "undefined") {
   capturePurchase();
   enterDemo();
-  initCheckout();
   void resolveDownloads();
 }

@@ -55,13 +55,13 @@
           <p>Single-file checking, cleaning, and JSON proof stay free. Pro adds multi-file selection for a one-time US$12 purchase.</p>
         </div>
         <div class="license-actions">
-          <button id="buy-pro" class="button secondary" type="button">Buy Pro — $12 once</button>
+          <button id="buy-pro" class="button secondary" type="button" disabled aria-describedby="license-status">Pro purchase unavailable</button>
           <button id="restore-toggle" class="text-button" type="button" aria-expanded="false">Have a license?</button>
           <form id="license-form" class="license-form" hidden>
             <label for="license-token">License token</label>
             <div><input id="license-token" autocomplete="off" spellcheck="false" /><button class="button small" type="submit">Verify</button></div>
           </form>
-          <p id="license-status" class="microcopy" aria-live="polite">Free edition · one file at a time</p>
+          <p id="license-status" class="microcopy" aria-live="polite">Pro checkout needs billing registration. Batch work is not available yet.</p>
         </div>
       </section>
     </main>
