@@ -153,7 +153,8 @@ a { color: inherit; }
 .price { font: 500 54px Georgia, serif; }
 .price small { font: 500 15px system-ui; }
 .price-card ul { padding-left: 22px; line-height: 1.7; margin: 25px 0; }
-.price-card .button { width: 100%; }
+.price-card .button { width: 100%; cursor: pointer; font: inherit; }
+.price-card .button:disabled { cursor: wait; opacity: .72; }
 .price-card p { font-size: 12px; line-height: 1.45; color: var(--muted); margin-bottom: 0; }
 
 footer { border-top: 1px solid var(--ink); max-width: 1280px; margin: auto; padding: 48px clamp(20px, 4vw, 54px); display: grid; grid-template-columns: 1fr auto; gap: 32px; color: var(--muted); }

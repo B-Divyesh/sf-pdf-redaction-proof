@@ -52,7 +52,7 @@ fn apply_worker_limits() -> std::io::Result<()> {
     Ok(())
 }
 
-#[cfg(unix)]
+#[cfg(target_os = "linux")]
 fn active_worker_limits() -> std::io::Result<WorkerLimits> {
     let mut memory = libc::rlimit {
         rlim_cur: 0,
@@ -159,15 +159,18 @@ fn write_report(path: String, contents: String) -> Result<(), String> {
 pub fn run() {
     let args: Vec<String> = std::env::args().collect();
     if args.get(1).map(String::as_str) == Some("--redaction-proof-worker") {
+        #[cfg(target_os = "linux")]
         let limits_result = apply_worker_limits();
+        #[cfg(not(target_os = "linux"))]
+        let limits_result: std::io::Result<()> = Ok(());
         let mut bytes = Vec::new();
         let read_result = std::io::stdin()
             .take(500 * 1024 * 1024 + 1)
             .read_to_end(&mut bytes);
         let sandbox_result = sandbox::enter();
-        #[cfg(unix)]
+        #[cfg(target_os = "linux")]
         let worker_limits = active_worker_limits();
-        #[cfg(unix)]
+        #[cfg(target_os = "linux")]
         if args.get(2).map(String::as_str) == Some("limits") {
             let response = match (limits_result, sandbox_result, worker_limits) {
                 (Ok(()), Ok(()), Ok(limits)) => WorkerResponse {

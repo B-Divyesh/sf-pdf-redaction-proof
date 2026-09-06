@@ -59,16 +59,25 @@ test("license verification is limited locally and reports a 429-style retry dela
   expect(requests).toBe(5);
 });
 
-test("license verification respects upstream 429 Retry-After", async ({ page }) => {
+test("@claim:license-token license verification sends only the entered token", async ({ page }) => {
   let requests = 0;
-  await page.route("https://api.sociobot.in/api/v1/products/pdf-redaction-proof/verify?*", route =>
-    { requests += 1; return route.fulfill({ status: 429, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Expose-Headers": "Retry-After", "Retry-After": "42" }, body: "rate limited" }); });
+  const sent: { method: string; body: string | null; url: string }[] = [];
+  await page.route("https://api.sociobot.in/api/v1/products/pdf-redaction-proof/verify?*", route => {
+    requests += 1;
+    sent.push({ method: route.request().method(), body: route.request().postData(), url: route.request().url() });
+    return route.fulfill({ status: 429, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Expose-Headers": "Retry-After", "Retry-After": "42" }, body: "rate limited" });
+  });
   await page.goto("http://127.0.0.1:1420");
   await page.getByRole("button", { name: "Have a license?" }).click();
-  await page.getByLabel("License token").fill("invalid-upstream");
+  await page.getByLabel("License token").fill("only-a-license-token");
   await page.getByRole("button", { name: "Verify" }).click();
   await expect(page.locator("#license-status")).toHaveText("Too many license checks. Try again in 42 seconds.");
   await page.getByRole("button", { name: "Verify" }).click();
   await expect(page.locator("#license-status")).toContainText("Too many license checks. Try again in");
   expect(requests).toBe(1);
+  expect(sent).toEqual([{
+    method: "GET",
+    body: null,
+    url: "https://api.sociobot.in/api/v1/products/pdf-redaction-proof/verify?license=only-a-license-token",
+  }]);
 });

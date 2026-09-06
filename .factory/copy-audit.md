@@ -11,7 +11,7 @@ No sentence exceeds 22 words. No banned marketing term appears.
 | 3 | It saves nothing. |
 | 6 | PDF checks run on your computer. |
 | 5 | Single-file checks are free. |
-| 4 | Pro costs US$12 once. |
+| 7 | Pro costs US$12 once when available. |
 | 10 | This built-in sample shows hidden text and metadata. |
 | 9 | Demo actions stay in memory and save nothing. |
 | 8 | Two hidden items remain in this sample PDF. |
@@ -33,15 +33,16 @@ No sentence exceeds 22 words. No banned marketing term appears.
 | 7 | Select the file you plan to share. |
 | 8 | See what remains and where it appears. |
 | 9 | Clean risky structures and export the JSON proof. |
-| 7 | Your PDF stays on your computer. |
-| 12 | The app sends no document contents, filenames, hashes, or reports. |
+| 7 | PDF parsing stays on your computer. |
+| 8 | The PDF parser has no network access. |
 | 8 | License checks send only the license token. |
 | 8 | This is a technical check, not legal advice. |
 | 11 | Rotated text, clipping, and secrets inside images still need visual review. |
 | 7 | Use every safety check for free. |
 | 14 | The free edition checks, cleans, and exports one PDF at a time. |
 | 5 | Pro adds batch work. |
-| 5 | Sociobot/Dodo handles payment and refunds. |
+| 5 | Pro checkout needs billing registration. |
+| 9 | Sociobot/Dodo handles payment and refunds when checkout is ready. |
 
 ## Terminology
 

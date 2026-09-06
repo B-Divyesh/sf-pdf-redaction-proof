@@ -10,9 +10,9 @@ certainty. Every report includes the limits of the check.
 
 ## Product editions
 
-Single-file checking, cleaning, and JSON export are free. A US$12 one-time Pro
-license adds multi-file selection and a batch summary. The Sociobot billing API
-handles checkout and license checks once product registration is complete.
+Single-file checking, cleaning, and JSON export are free. Pro batch work is a
+US$12 one-time offer for multi-file selection and a batch summary. Its Sociobot
+checkout registration is pending, so batch work remains unavailable for now.
 
 ## Try the sample
 
@@ -80,8 +80,8 @@ The trusted desktop process opens the chosen PDF and sends only its bytes and
 base name to a separate parser process. The parser enters an operating-system
 sandbox before parsing: Linux denies filesystem and network system calls with
 Landlock and seccomp, macOS uses an application sandbox profile, and Windows
-uses a restricted token. The worker also has a 500 MB input limit; Unix builds
-cap it at 60 CPU seconds and 1.5 GB address space. Standard
+uses a restricted token. The worker also has a 500 MB input limit. On Linux,
+it has a 60-second CPU limit and a 1.5 GB address-space limit. Standard
 text operators are spatially compared with later filled rectangles and PDF
 redaction annotations. Sanitizing removes identified overlapping/invisible text
 operators and strips metadata, name trees, actions, annotations, forms, and
@@ -94,6 +94,7 @@ visible in the app and report.
 
 ## Privacy and source
 
-The site loads its own files and public GitHub release metadata. The app stores
-only a Pro license token and dated verification verdict locally.
+The site loads its own files and public GitHub release metadata. Choosing Buy
+Pro checks the Sociobot checkout registration without sending PDF data. The app
+stores only a Pro license token and dated verification verdict locally.
 See `/privacy/` and `/terms/` on the site. The source is MIT licensed.

@@ -36,10 +36,10 @@
   },
   {
     "id": "single-file-price",
-    "claim": "Single-file checking, cleaning, and JSON export are free; Pro batch work costs US$12 once.",
+    "claim": "Single-file checking, cleaning, and JSON export are free; Pro batch work is a US$12 one-time offer and remains unavailable until checkout registration is ready.",
     "where": "landing facts and pricing, app license panel, README",
     "test": "npx playwright test --grep @claim:single-file-price --workers=1",
-    "sandbox": "fresh site and app contexts; assert free features, exact price, batch scope, and Sociobot checkout URL"
+    "sandbox": "fresh site and app contexts with a mocked unregistered billing endpoint; assert free features, exact price, batch scope, and that clicking Buy Pro stays on-page with an honest unavailable state"
   },
   {
     "id": "local-processing",
@@ -77,10 +77,10 @@
     "sandbox": "create a sparse 500 MB plus one byte PDF path; assert TooLarge before file contents are read"
   },
   {
-    "id": "worker-resource-limits",
-    "claim": "On Unix, the PDF worker has a 60-second CPU limit and a 1.5 GB address-space limit.",
+    "id": "linux-worker-resource-limits",
+    "claim": "On Linux, the PDF worker has a 60-second CPU limit and a 1.5 GB address-space limit.",
     "where": "README",
-    "test": "cargo test --manifest-path src-tauri/Cargo.toml claim_unix_worker_limits_are_applied -- --nocapture",
+    "test": "cargo test --manifest-path src-tauri/Cargo.toml claim_linux_worker_limits_are_applied -- --nocapture",
     "sandbox": "start the production worker command in a fresh process, read its active rlimits after its sandbox starts, and assert the exact CPU and address-space values"
   },
   {
@@ -89,5 +89,12 @@
     "where": "desktop offline state and README",
     "test": "npx playwright test --grep @claim:offline-sample --workers=1",
     "sandbox": "fresh desktop UI context with all external requests recorded; load the built-in sample and assert none occur"
+  },
+  {
+    "id": "license-token",
+    "claim": "License checks send only the entered license token.",
+    "where": "landing privacy copy, desktop license panel, privacy policy",
+    "test": "npx playwright test --grep @claim:license-token --workers=1",
+    "sandbox": "fresh desktop UI context with a captured mocked billing request; enter a known token and assert the GET has that token only and no body"
   }
 ]

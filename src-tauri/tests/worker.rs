@@ -56,9 +56,9 @@ fn worker_returns_a_rechecked_sanitized_pdf_over_the_output_pipe() {
     assert!(trailing.starts_with(b"%PDF-"));
 }
 
-#[cfg(unix)]
+#[cfg(target_os = "linux")]
 #[test]
-fn claim_unix_worker_limits_are_applied() {
+fn claim_linux_worker_limits_are_applied() {
     let (header, trailing) = run_worker("limits", "plain-page.pdf");
     assert!(
         header["error"].is_null(),

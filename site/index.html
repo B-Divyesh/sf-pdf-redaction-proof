@@ -54,7 +54,7 @@
             <span id="download-note" role="status" aria-live="polite">Checking current downloads…</span>
           </div>
           <div class="platform-links" aria-label="Other downloads"><a data-platform="macos" href="https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/latest">macOS</a><a data-platform="windows" href="https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/latest">Windows</a><a data-platform="linux" href="https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/latest">Linux</a></div>
-          <ul class="plain-facts" aria-label="Product facts"><li>PDF checks run on your computer.</li><li>Single-file checks are free.</li><li>Pro costs US$12 once.</li></ul>
+          <ul class="plain-facts" aria-label="Product facts"><li>PDF checks run on your computer.</li><li>Single-file checks are free.</li><li>Pro costs US$12 once when available.</li></ul>
         </div>
 
         <figure id="hero-art" class="hero-art">
@@ -97,14 +97,14 @@
         <div class="workflow-grid"><article><span>CHOOSE</span><h3>Open the output PDF</h3><p>Select the file you plan to share.</p></article><article><span>REVIEW</span><h3>Read every finding</h3><p>See what remains and where it appears.</p></article><article><span>SAVE</span><h3>Create a separate copy</h3><p>Clean risky structures and export the JSON proof.</p></article></div>
       </section>
 
-      <section class="warning" aria-labelledby="warning-title"><div class="warning-mark" aria-hidden="true">!</div><div><p class="section-number">04 / PRIVACY AND LIMITS</p><h2 id="warning-title">Your PDF stays on your computer.</h2><p>The app sends no document contents, filenames, hashes, or reports. License checks send only the license token.</p><p>This is a technical check, not legal advice. Rotated text, clipping, and secrets inside images still need visual review.</p><a href="/privacy/">Read the privacy policy</a></div></section>
+      <section class="warning" aria-labelledby="warning-title"><div class="warning-mark" aria-hidden="true">!</div><div><p class="section-number">04 / PRIVACY AND LIMITS</p><h2 id="warning-title">PDF parsing stays on your computer.</h2><p>The PDF parser has no network access. License checks send only the license token.</p><p>This is a technical check, not legal advice. Rotated text, clipping, and secrets inside images still need visual review.</p><a href="/privacy/">Read the privacy policy</a></div></section>
 
       <section id="pricing" class="pricing" aria-labelledby="pricing-title">
         <div><p class="section-number">05 / PRICING</p><h2 id="pricing-title">Use every safety check for free.</h2><p>The free edition checks, cleans, and exports one PDF at a time. Pro adds batch work.</p></div>
-        <div class="price-card"><span class="price">$12 <small>once</small></span><ul><li>Every free feature</li><li>Multi-file selection</li><li>Batch result summary</li></ul><a class="button primary" href="https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout">Buy Pro for $12</a><p>Sociobot/Dodo handles payment and refunds.</p></div>
+        <div class="price-card"><span class="price">$12 <small>once</small></span><ul><li>Every free feature</li><li>Multi-file selection</li><li>Batch result summary</li></ul><button id="buy-pro" class="button primary" type="button">Buy Pro for $12</button><p id="checkout-status" class="microcopy" aria-live="polite">Pro checkout needs billing registration.</p><p>Sociobot/Dodo handles payment and refunds when checkout is ready.</p></div>
       </section>
     </main>
-    <footer><div><a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i></span><span>Redaction Proof</span></a><p>Check a redacted PDF before you send it.</p></div><div><a href="/?demo=1">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/install.sh">install.sh</a><a href="/install.ps1">install.ps1</a></div><p class="disclosure">Built by Param Factory · v0.1.4 · Original generated art · No telemetry</p></footer>
+    <footer><div><a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i></span><span>Redaction Proof</span></a><p>Check a redacted PDF before you send it.</p></div><div><a href="/?demo=1">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/install.sh">install.sh</a><a href="/install.ps1">install.ps1</a></div><p class="disclosure">Built by Param Factory · v0.1.5 · Original generated art</p></footer>
     <script type="module" src="/src/site.ts"></script>
   </body>
 </html>

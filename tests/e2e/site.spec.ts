@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 const apiUrl = "https://api.github.com/repos/B-Divyesh/sf-pdf-redaction-proof/releases/latest";
+const checkoutUrl = "https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout";
 const release = {
   tag_name: "v0.1.0",
   html_url: "https://github.com/B-Divyesh/sf-pdf-redaction-proof/releases/tag/v0.1.0",
@@ -152,16 +153,28 @@ test("@claim:site-network-privacy loads no tracker, font CDN, or third-party run
   expect([...origins].sort()).toEqual(["http://127.0.0.1:4173", "https://api.github.com"]);
 });
 
-test("@claim:single-file-price states the free limit and exact one-time price", async ({ page }) => {
+test("@claim:single-file-price keeps free work available and does not open an unregistered checkout", async ({ page }) => {
+  const checkoutRequests: { method: string; body: string | null }[] = [];
+  await page.route(checkoutUrl, route => {
+    checkoutRequests.push({ method: route.request().method(), body: route.request().postData() });
+    return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "enabled factory product" }) });
+  });
   await mockRelease(page);
   await page.goto("/");
   await expect(page.getByText("Single-file checks are free.")).toBeVisible();
-  await expect(page.getByText("Pro costs US$12 once.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Buy Pro for $12" })).toHaveAttribute("href", "https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout");
+  await expect(page.getByText("Pro costs US$12 once when available.")).toBeVisible();
+  await page.getByRole("button", { name: "Buy Pro for $12" }).click();
+  await expect(page.locator("#checkout-status")).toHaveText("Pro purchase is being registered. Batch work is not available yet.");
+  await expect(page).toHaveURL("http://127.0.0.1:4173/");
   await page.goto("http://127.0.0.1:1420");
   await expect(page.getByText("Single-file checking, cleaning, and JSON proof stay free.")).toBeVisible();
   await expect(page.getByText("Pro adds multi-file selection for a one-time US$12 purchase.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Buy Pro — $12 once" })).toHaveAttribute("href", "https://api.sociobot.in/api/v1/products/pdf-redaction-proof/checkout");
+  await page.getByRole("button", { name: "Buy Pro — $12 once" }).click();
+  await expect(page.locator("#license-status")).toHaveText("Pro purchase is being registered. Batch work is not available yet.");
+  expect(checkoutRequests).toEqual([
+    { method: "GET", body: null },
+    { method: "GET", body: null },
+  ]);
 });
 
 test("home wordmark has a 44px minimum pointer target", async ({ page }) => {

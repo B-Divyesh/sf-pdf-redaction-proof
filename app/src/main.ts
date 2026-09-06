@@ -8,6 +8,7 @@ import type { AuditReport, Finding } from "./types";
 import { cachedUnlock, captureReturnedLicense, LicenseRateLimitError, storedToken, verifyLicense } from "./license";
 import { reportJson, safeBasename, verdictCopy } from "./report";
 import { sampleAudit } from "./sample";
+import { CHECKOUT_URL, checkoutIsAvailable } from "../../site/src/checkout";
 
 const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const dropZone = el<HTMLDivElement>("drop-zone");
@@ -163,9 +164,25 @@ async function initLicense() {
 function init() {
   el("pick-file").addEventListener("click", event => { event.stopPropagation(); chooseFiles(); });
   el("load-sample").addEventListener("click", event => { event.stopPropagation(); renderReport(sampleAudit, true); });
-  const buyLink = el<HTMLAnchorElement>("buy-pro");
-  buyLink.addEventListener("click", event => {
-    if ("__TAURI_INTERNALS__" in window) { event.preventDefault(); openUrl(buyLink.href); }
+  const buyButton = el<HTMLButtonElement>("buy-pro");
+  buyButton.addEventListener("click", async () => {
+    const status = el("license-status");
+    buyButton.disabled = true;
+    buyButton.textContent = "Checking checkout…";
+    try {
+      if (!await checkoutIsAvailable()) {
+        status.textContent = "Pro purchase is being registered. Batch work is not available yet.";
+        return;
+      }
+      status.textContent = "Opening hosted checkout…";
+      if ("__TAURI_INTERNALS__" in window) await openUrl(CHECKOUT_URL);
+      else location.assign(CHECKOUT_URL);
+    } catch {
+      status.textContent = "We could not confirm checkout. Try again when you are online.";
+    } finally {
+      buyButton.disabled = false;
+      if (location.href !== CHECKOUT_URL) buyButton.textContent = "Buy Pro — $12 once";
+    }
   });
   dropZone.addEventListener("click", chooseFiles);
   if ("__TAURI_INTERNALS__" in window) {
